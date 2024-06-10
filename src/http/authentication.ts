@@ -11,20 +11,6 @@ const jwtPayloadSchema = t.Object({
 })
 
 export const authentication = new Elysia()
-  .error({
-    UNAUTHORIZED: UnauthorizedError,
-    NOT_A_MANAGER: NotAManagerError,
-  })
-  .onError(({ code, error, set }) => {
-    switch (code) {
-      case 'UNAUTHORIZED':
-        set.status = 401
-        return { code, message: error.message }
-      case 'NOT_A_MANAGER':
-        set.status = 401
-        return { code, message: error.message }
-    }
-  })
   .use(
     jwt({
       name: 'jwt',
@@ -37,10 +23,6 @@ export const authentication = new Elysia()
     return {
       getCurrentUser: async () => {
         const payload = await jwt.verify(cookie.auth)
-
-        if (!payload) {
-          throw new UnauthorizedError()
-        }
 
         return payload
       },
@@ -60,10 +42,6 @@ export const authentication = new Elysia()
     return {
       getManagedRestaurantId: async () => {
         const { restaurantId } = await getCurrentUser()
-
-        if (!restaurantId) {
-          throw new NotAManagerError()
-        }
 
         return restaurantId
       },

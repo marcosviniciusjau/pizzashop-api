@@ -18,9 +18,6 @@ export const sendAuthenticationLink = new Elysia().post(
       },
     })
 
-    if (!userFromEmail) {
-      throw new UnauthorizedError()
-    }
 
     const authLinkCode = createId()
 

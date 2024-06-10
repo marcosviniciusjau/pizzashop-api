@@ -54,8 +54,8 @@ console.log(chalk.yellow('✔ Created customers'))
 const [manager] = await db
   .insert(users)
   .values({
-    name: faker.person.fullName(),
-    email: 'diego.schell.f@gmail.com',
+    name: 'MV Araújo Websites',
+    email: 'mvaraujowebsites@gmail.com',
     role: 'manager',
   })
   .returning()
@@ -68,133 +68,102 @@ console.log(chalk.yellow('✔ Created manager'))
 const [restaurant] = await db
   .insert(restaurants)
   .values({
-    name: faker.company.name(),
-    description: faker.lorem.paragraph(),
+    name: 'Pastel Pro',
+    description: 'Os melhores sabores em um lugar só',
     managerId: manager.id,
   })
   .returning()
 
 console.log(chalk.yellow('✔ Created restaurant'))
 
-/**
- * Create products
- */
 const availableProducts = await db
   .insert(products)
   .values([
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Frango com Catupiry',
+      category: 'pastries',
+      priceInCents: 800,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com frango desfiado e catupiry',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Queijo',
+      category: 'pastries',
+      priceInCents: 750,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com queijo mussarela',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Calabresa',
+      category: 'pastries',
+      priceInCents: 850,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com calabresa e cebola',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Carne',
+      category: 'pastries',
+      priceInCents: 900,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com carne moída temperada',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Pizza',
+      category: 'pastries',
+      priceInCents: 950,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com queijo, presunto, tomate e orégano',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Mexicano',
+      category: 'pastries',
+      priceInCents: 1000,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com carne moída, feijão, pimenta e cheddar',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Brócolis com Ricota',
+      category: 'pastries',
+      priceInCents: 850,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com brócolis e ricota',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Doce de Leite',
+      category: 'pastries',
+      priceInCents: 800,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com doce de leite',
     },
     {
-      name: faker.commerce.productName(),
-      priceInCents: Number(
-        faker.commerce.price({
-          min: 190,
-          max: 490,
-          dec: 0,
-        }),
-      ),
+      name: 'Romeu e Julieta',
+      category: 'pastries',
+      priceInCents: 850,
       restaurantId: restaurant.id,
-      description: faker.commerce.productDescription(),
+      description: 'Pastel recheado com queijo e goiabada',
     },
+    {
+      name: 'Coca-cola',
+      category: 'beverages',
+      priceInCents: 1000,
+      restaurantId: restaurant.id,
+      description: 'Coca-cola em lata',
+    },
+    {
+      name: 'Fanta',
+      category: 'beverages',
+      priceInCents: 1000,
+      restaurantId: restaurant.id,
+      description: 'Fanta lata',
+    }
   ])
   .returning()
 
 console.log(chalk.yellow('✔ Created products'))
 
+/**
+ * Create orders
+ */
 const ordersToInsert: (typeof orders.$inferInsert)[] = []
 const orderItemsToPush: (typeof orderItems.$inferInsert)[] = []
 

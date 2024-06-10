@@ -26,7 +26,8 @@ import { getDailyReceiptInPeriod } from './routes/get-daily-receipt-in-period'
 import { getPopularProducts } from './routes/get-popular-products'
 import { dispatchOrder } from './routes/dispatch-order'
 import { deliverOrder } from './routes/deliver-order'
-
+import { getProducts } from './routes/get-products'
+import { getCustomers } from './routes/get-customers'
 const app = new Elysia()
   .use(
     cors({
@@ -69,6 +70,8 @@ const app = new Elysia()
   .use(getMonthCanceledOrdersAmount)
   .use(getDailyReceiptInPeriod)
   .use(getPopularProducts)
+  .use(getProducts)
+  .use(getCustomers)
   .onError(({ code, error, set }) => {
     switch (code) {
       case 'VALIDATION': {

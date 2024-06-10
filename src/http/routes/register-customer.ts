@@ -6,7 +6,7 @@ import { z } from 'zod'
 const registerCustomerBodySchema = z.object({
   name: z.string().min(1),
   phone: z.string(),
-  email: z.string().email(),
+  email: z.string().email().optional(),
 })
 
 export const registerCustomer = new Elysia().post(
@@ -20,6 +20,6 @@ export const registerCustomer = new Elysia().post(
       phone,
     })
 
-    set.status = 401
+    set.status = 201
   },
 )
