@@ -13,6 +13,7 @@ import { db } from './connection'
 import chalk from 'chalk'
 import { orderItems } from './schema/order-items'
 import { createId } from '@paralleldrive/cuid2'
+import { env } from '@/env'
 
 /**
  * Reset database
@@ -54,8 +55,8 @@ console.log(chalk.yellow('✔ Created customers'))
 const [manager] = await db
   .insert(users)
   .values({
-    name: 'MV Araújo Websites',
-    email: 'mvaraujowebsites@gmail.com',
+    name: 'Pizza Shop',
+    email: env.RESTAURANT_EMAIL,
     role: 'manager',
   })
   .returning()
