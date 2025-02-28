@@ -27,28 +27,6 @@ await db.delete(authLinks)
 await db.delete(users)
 
 console.log(chalk.yellow('✔ Database reset'))
-
-/**
- * Create customers
- */
-const [customer1, customer2] = await db
-  .insert(users)
-  .values([
-    {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      role: 'customer',
-    },
-    {
-      name: faker.person.fullName(),
-      email: faker.internet.email(),
-      role: 'customer',
-    },
-  ])
-  .returning()
-
-console.log(chalk.yellow('✔ Created customers'))
-
 /**
  * Create restaurant manager
  */
@@ -69,7 +47,7 @@ console.log(chalk.yellow('✔ Created manager'))
 const [restaurant] = await db
   .insert(restaurants)
   .values({
-    name: 'Pastel Pro',
+    name: 'Pizza Pro',
     description: 'Os melhores sabores em um lugar só',
     managerId: manager.id,
   })
@@ -77,71 +55,71 @@ const [restaurant] = await db
 
 console.log(chalk.yellow('✔ Created restaurant'))
 
-const availableProducts = await db
+await db
   .insert(products)
   .values([
     {
       name: 'Frango com Catupiry',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 800,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com frango desfiado e catupiry',
+      description: 'Pizza recheado com frango desfiado e catupiry',
     },
     {
       name: 'Queijo',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 750,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com queijo mussarela',
+      description: 'Pizza recheado com queijo mussarela',
     },
     {
       name: 'Calabresa',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 850,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com calabresa e cebola',
+      description: 'Pizza recheado com calabresa e cebola',
     },
     {
       name: 'Carne',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 900,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com carne moída temperada',
+      description: 'Pizza recheado com carne moída temperada',
     },
     {
       name: 'Pizza',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 950,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com queijo, presunto, tomate e orégano',
+      description: 'Pizza recheado com queijo, presunto, tomate e orégano',
     },
     {
       name: 'Mexicano',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 1000,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com carne moída, feijão, pimenta e cheddar',
+      description: 'Pizza recheado com carne moída, feijão, pimenta e cheddar',
     },
     {
       name: 'Brócolis com Ricota',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 850,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com brócolis e ricota',
+      description: 'Pizza recheado com brócolis e ricota',
     },
     {
       name: 'Doce de Leite',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 800,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com doce de leite',
+      description: 'Pizza recheado com doce de leite',
     },
     {
       name: 'Romeu e Julieta',
-      category: 'pastries',
+      category: 'pizzas',
       priceInCents: 850,
       restaurantId: restaurant.id,
-      description: 'Pastel recheado com queijo e goiabada',
+      description: 'Pizza recheado com queijo e goiabada',
     },
     {
       name: 'Coca-cola',
@@ -156,66 +134,11 @@ const availableProducts = await db
       priceInCents: 1000,
       restaurantId: restaurant.id,
       description: 'Fanta lata',
-    }
+    },
   ])
   .returning()
 
 console.log(chalk.yellow('✔ Created products'))
-
-/**
- * Create orders
- */
-const ordersToInsert: (typeof orders.$inferInsert)[] = []
-const orderItemsToPush: (typeof orderItems.$inferInsert)[] = []
-
-for (let i = 0; i < 200; i++) {
-  const orderId = createId()
-
-  const orderProducts = faker.helpers.arrayElements(availableProducts, {
-    min: 1,
-    max: 3,
-  })
-
-  let totalInCents = 0
-
-  orderProducts.forEach((orderProduct) => {
-    const quantity = faker.number.int({
-      min: 1,
-      max: 3,
-    })
-
-    totalInCents += orderProduct.priceInCents * quantity
-
-    orderItemsToPush.push({
-      orderId,
-      productId: orderProduct.id,
-      priceInCents: orderProduct.priceInCents,
-      quantity,
-    })
-  })
-
-  ordersToInsert.push({
-    id: orderId,
-    customerId: faker.helpers.arrayElement([customer1.id, customer2.id]),
-    restaurantId: restaurant.id,
-    status: faker.helpers.arrayElement([
-      'pending',
-      'canceled',
-      'processing',
-      'delivering',
-      'delivered',
-    ]),
-    totalInCents,
-    createdAt: faker.date.recent({
-      days: 40,
-    }),
-  })
-}
-
-await db.insert(orders).values(ordersToInsert)
-await db.insert(orderItems).values(orderItemsToPush)
-
-console.log(chalk.yellow('✔ Created orders'))
 
 console.log(chalk.greenBright('Database seeded successfully!'))
 

@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@faker-js/faker": "8.3.1",
-    "@rocketseat/eslint-config": "^2.2.2",
+    "@rocketseat/eslint-config": "3.0.12",
     "@types/pg": "8.10.9",
     "@types/react": "^18.2.39",
     "bun-types": "^1.0.14",

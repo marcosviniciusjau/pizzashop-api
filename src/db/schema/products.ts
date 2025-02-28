@@ -4,7 +4,7 @@ import { relations } from 'drizzle-orm'
 import { restaurants } from '.'
 import { orderItems } from './order-items'
 export const categoriesEnum = pgEnum('categories', [
-  'pastries',
+  'pizzas',
   'beverages',
   'savory snacks',
 ])
@@ -15,7 +15,7 @@ export const products = pgTable('products', {
     .primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
-  category: categoriesEnum('category').default('pastries').notNull(),
+  category: categoriesEnum('category').default('pizzas').notNull(),
   priceInCents: integer('price_in_cents').notNull(),
   restaurantId: text('restaurant_id')
     .references(() => restaurants.id, {
