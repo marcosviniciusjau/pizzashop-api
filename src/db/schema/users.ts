@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2'
 import { relations } from 'drizzle-orm'
 import { pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { orders } from './orders'
@@ -7,7 +6,6 @@ export const userRoleEnum = pgEnum('user_role', ['manager', 'customer'])
 
 export const users = pgTable('users', {
   id: text('id')
-    .$defaultFn(() => createId())
     .primaryKey(),
   name: text('name').notNull().unique(),
   email: text('email').unique(),

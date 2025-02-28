@@ -1,11 +1,11 @@
-import { createId } from '@paralleldrive/cuid2'
 import { relations } from 'drizzle-orm'
 import { pgTable, integer, text, timestamp } from 'drizzle-orm/pg-core'
 import { restaurants, users } from '.'
+import { nanoid } from 'nanoid'
 
 export const evaluations = pgTable('evaluations', {
   id: text('id')
-    .$defaultFn(() => createId())
+    .$defaultFn(() => nanoid())
     .primaryKey(),
   customerId: text('customer_id').references(() => users.id),
   restaurantId: text('restaurant_id').references(() => users.id),

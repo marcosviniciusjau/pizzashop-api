@@ -1,8 +1,8 @@
-import { createId } from '@paralleldrive/cuid2'
 import { integer, pgEnum, pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { restaurants } from '.'
 import { orderItems } from './order-items'
+import { nanoid } from 'nanoid'
 export const categoriesEnum = pgEnum('categories', [
   'pizzas',
   'beverages',
@@ -11,7 +11,7 @@ export const categoriesEnum = pgEnum('categories', [
 
 export const products = pgTable('products', {
   id: text('id')
-    .$defaultFn(() => createId())
+    .$defaultFn(() => nanoid())
     .primaryKey(),
   name: text('name').notNull(),
   description: text('description'),

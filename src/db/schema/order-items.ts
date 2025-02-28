@@ -1,11 +1,11 @@
 import { relations } from 'drizzle-orm'
 import { integer, pgTable, text } from 'drizzle-orm/pg-core'
 import { orders, products } from '.'
-import { createId } from '@paralleldrive/cuid2'
+import { nanoid } from 'nanoid'
 
 export const orderItems = pgTable('order_items', {
   id: text('id')
-    .$defaultFn(() => createId())
+    .$defaultFn(() => nanoid())
     .primaryKey(),
   orderId: text('order_id')
     .notNull()

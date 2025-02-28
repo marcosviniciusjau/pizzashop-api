@@ -1,4 +1,3 @@
-import { createId } from '@paralleldrive/cuid2'
 import { pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { users } from './users'
@@ -6,7 +5,7 @@ import { orders, products } from '.'
 
 export const restaurants = pgTable('restaurants', {
   id: text('id')
-    .$defaultFn(() => createId())
+    .$defaultFn(() => "pc4yww7t7222mprsgoxlupr8")
     .primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
