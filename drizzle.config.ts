@@ -4,8 +4,8 @@ import { env } from '@/env'
 export default {
   schema: './src/db/schema/index.ts',
   out: './drizzle',
-  driver: 'pg',
+  dialect: "postgresql",
   dbCredentials: {
-    connectionString: env.DB_URL,
+    url: env.DB_URL,
   },
-} satisfies Config
+}
