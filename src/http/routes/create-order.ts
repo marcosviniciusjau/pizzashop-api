@@ -48,21 +48,6 @@ export const createOrder = new Elysia().use(authentication).post(
       return total + orderItem.subtotalInCents
     }, 0)
 
-    const customerExists = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.id, customerId),
-    })
-
-    if (!customerExists) {
-      const [newCustomer] = await db
-        .insert(users)
-        .values({
-          name: customerName,
-        })
-        .returning({ id: users.id })
-
-      customerId = newCustomer.id
-    }
-
     try {
       await db.transaction(async (tx) => {
         try {
