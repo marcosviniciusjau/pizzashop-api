@@ -7,8 +7,8 @@ export const evaluations = pgTable('evaluations', {
   id: text('id')
     .$defaultFn(() => nanoid())
     .primaryKey(),
-  customerId: text('customer_id').references(() => users.id),
-  restaurantId: text('restaurant_id').references(() => users.id),
+  customerName: text('customer_id').references(() => users.name),
+  restaurantId: text('restaurant_id').references(() => users.name),
   rate: integer('rate').notNull(),
   comment: text('comment'),
   createdAt: timestamp('created_at').defaultNow(),
@@ -16,8 +16,8 @@ export const evaluations = pgTable('evaluations', {
 
 export const evaluationsRelations = relations(evaluations, ({ one }) => ({
   customer: one(users, {
-    fields: [evaluations.customerId],
-    references: [users.id],
+    fields: [evaluations.customerName],
+    references: [users.name],
   }),
   restaurant: one(restaurants, {
     fields: [evaluations.restaurantId],

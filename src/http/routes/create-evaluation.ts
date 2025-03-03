@@ -11,7 +11,7 @@ export const createEvaluation = new Elysia().use(authentication).post(
 
     await db.insert(evaluations).values({
       restaurantId,
-      customerId: userId,
+      customerName: userId,
       rate,
       comment,
     })

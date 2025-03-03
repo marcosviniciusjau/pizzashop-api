@@ -2,10 +2,12 @@ import { pgTable, text, timestamp } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
 import { users } from './users'
 import { orders, products } from '.'
+import { env } from '@/env'
+import { nanoid } from 'nanoid'
 
 export const restaurants = pgTable('restaurants', {
   id: text('id')
-    .$defaultFn(() => "pc4yww7t7222mprsgoxlupr8")
+      .$defaultFn(() => nanoid())
     .primaryKey(),
   name: text('name').notNull(),
   description: text('description'),

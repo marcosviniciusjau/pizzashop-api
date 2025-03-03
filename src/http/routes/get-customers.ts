@@ -13,7 +13,7 @@ export const getCustomers = new Elysia()
     try {
       const customer = await db
         .select({
-          id: users.id,
+          id: users.name,
           name: users.name,
           phone: users.phone
         })

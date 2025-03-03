@@ -5,6 +5,7 @@ const envSchema = z.object({
   AUTH_REDIRECT_URL: z.string().url(),
   DB_URL: z.string().url().min(1),
   EMAIL: z.string(),
+  RESTAURANT_ID: z.string(),
   RESTAURANT_EMAIL: z.string().email(),
   JWT_SECRET_KEY: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),

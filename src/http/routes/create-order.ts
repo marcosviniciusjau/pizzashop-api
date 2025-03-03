@@ -9,7 +9,7 @@ export const createOrder = new Elysia().use(authentication).post(
   '/restaurants/:restaurantId/orders',
   async ({ params, body, set }) => {
     const { restaurantId } = params
-    let { customerId, customerName, items } = body
+    let { customerName, customerEmail, items } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       set.status = 400
@@ -48,6 +48,22 @@ export const createOrder = new Elysia().use(authentication).post(
       return total + orderItem.subtotalInCents
     }, 0)
 
+    const customerExists = await db.query.users.findFirst({
+      where: (users, { eq }) => eq(users.email, customerEmail),
+    })
+
+    if (!customerExists) {
+      const [newCustomer] = await db
+        .insert(users)
+        .values({
+          name: customerName,
+          email: customerEmail
+        })
+        .returning({ email: users.email })
+
+      customerEmail = newCustomer.email!
+    }
+
     try {
       await db.transaction(async (tx) => {
         try {
@@ -55,7 +71,7 @@ export const createOrder = new Elysia().use(authentication).post(
             .insert(orders)
             .values({
               totalInCents,
-              customerId,
+              customerEmail,
               restaurantId,
             })
             .returning({
@@ -86,8 +102,8 @@ export const createOrder = new Elysia().use(authentication).post(
   },
   {
     body: t.Object({
-      customerId: t.String(),
-      customerName: t.Optional(t.String()),
+      customerName: t.String(),
+      customerEmail: t.String(),
       items: t.Array(
         t.Object({
           productId: t.String(),

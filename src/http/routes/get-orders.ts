@@ -26,7 +26,7 @@ export const getOrders = new Elysia().use(authentication).get(
         total: orders.totalInCents,
       })
       .from(orders)
-      .innerJoin(users, eq(users.id, orders.customerId))
+      .innerJoin(users, eq(users.name, orders.customerName))
       .where(
         and(
           eq(orders.restaurantId, restaurantId),

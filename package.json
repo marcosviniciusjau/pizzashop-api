@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "generate": "drizzle-kit generate:pg",
+    "generate": "drizzle-kit generate",
     "dev": "bun --watch src/http/server.ts",
     "migrate": "bun src/db/migrate.ts",
     "seed": "bun src/db/seed.ts"

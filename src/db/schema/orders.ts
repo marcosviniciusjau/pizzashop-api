@@ -16,8 +16,8 @@ export const orders = pgTable('orders', {
   id: text('id')
     .$defaultFn(() => nanoid())
     .primaryKey(),
-  customerId: text('customer_id')
-    .references(() => users.id, {
+  customerEmail: text('customer_email')
+    .references(() => users.email, {
       onDelete: 'set null',
     })
     .notNull(),
@@ -33,8 +33,8 @@ export const orders = pgTable('orders', {
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
   customer: one(users, {
-    fields: [orders.customerId],
-    references: [users.id],
+    fields: [orders.customerEmail],
+    references: [users.email],
   }),
   restaurant: one(restaurants, {
     fields: [orders.restaurantId],
