@@ -4,7 +4,7 @@ CREATE TYPE "public"."categories" AS ENUM('pizzas', 'beverages', 'savory snacks'
 CREATE TABLE "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
-	"email" text,
+	"email" text NOT NULL,
 	"phone" text,
 	"role" "user_role" DEFAULT 'customer' NOT NULL,
 	"created_at" timestamp DEFAULT now(),
@@ -72,7 +72,7 @@ ALTER TABLE "evaluations" ADD CONSTRAINT "evaluations_customer_id_users_name_fk"
 ALTER TABLE "evaluations" ADD CONSTRAINT "evaluations_restaurant_id_users_name_fk" FOREIGN KEY ("restaurant_id") REFERENCES "public"."users"("name") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_customer_email_users_email_fk" FOREIGN KEY ("customer_email") REFERENCES "public"."users"("email") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "orders" ADD CONSTRAINT "orders_restaurant_id_restaurants_id_fk" FOREIGN KEY ("restaurant_id") REFERENCES "public"."restaurants"("id") ON DELETE set null ON UPDATE no action;--> statement-breakpoint
-ALTER TABLE "auth_links" ADD CONSTRAINT "auth_links_user_id_users_name_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("name") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
+ALTER TABLE "auth_links" ADD CONSTRAINT "auth_links_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE no action ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "products" ADD CONSTRAINT "products_restaurant_id_restaurants_id_fk" FOREIGN KEY ("restaurant_id") REFERENCES "public"."restaurants"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_order_id_orders_id_fk" FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint
 ALTER TABLE "order_items" ADD CONSTRAINT "order_items_product_id_products_id_fk" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE set null ON UPDATE no action;

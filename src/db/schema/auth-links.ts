@@ -8,7 +8,7 @@ export const authLinks = pgTable('auth_links', {
     .primaryKey(),
   code: text('code').notNull().unique(),
   userId: text('user_id')
-    .references(() => users.name)
+    .references(() => users.id)
     .notNull(),
   createdAt: timestamp('created_at').defaultNow(),
 })
