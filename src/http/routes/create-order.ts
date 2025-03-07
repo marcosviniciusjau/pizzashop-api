@@ -4,7 +4,8 @@ import Elysia, { t } from 'elysia'
 import { authentication } from '../authentication'
 import { orderItems } from '@/db/schema/order-items'
 import { users } from '@/db/schema/users'
-
+import { products as productsSchema } from '@/db/schema';
+import { stripe } from "@/lib/stripe";
 export const createOrder = new Elysia().use(authentication).post(
   '/restaurants/:restaurantId/orders',
   async ({ params, body, set }) => {
@@ -29,21 +30,32 @@ export const createOrder = new Elysia().use(authentication).post(
 
     // Map order items to include details such as price and subtotal
     const orderProducts = items.map((item) => {
-      const product = products.find((product) => product.id === item.productId)
+      const productOnDb = products.find((product) => product.id === item.productId)
 
-      if (!product) {
-        throw new Error('Some products are not available in this restaurant.')
+      const productOnStripe = stripe.products.retrieve(item.productId)
+      if (!productOnDb) {
+        if (!productOnStripe) {
+          throw new Error('Some products are not available in this restaurant.')
+        }
+        db.insert(productsSchema).values({
+          id: item.productId,
+          name: item.name,
+          category: item.category,
+          size: item.size,
+          priceInCents: item.price,
+          restaurantId
+        })
       }
 
       return {
         productId: item.productId,
-        unitPriceInCents: product.priceInCents,
+        unitPriceInCents: productOnDb!.priceInCents,
         quantity: item.quantity,
-        category: product.category,
-        subtotalInCents: item.quantity * product.priceInCents,
+        category: productOnDb!.category,
+        subtotalInCents: item.quantity * productOnDb!.priceInCents,
       }
     })
-
+    console.log("ta me irritando", orderProducts)
     const totalInCents = orderProducts.reduce((total, orderItem) => {
       return total + orderItem.subtotalInCents
     }, 0)
@@ -107,6 +119,8 @@ export const createOrder = new Elysia().use(authentication).post(
       items: t.Array(
         t.Object({
           productId: t.String(),
+          name: t.String(),
+          price: t.Number({ minimum: 1 }),
           quantity: t.Integer(),
           category: t.String(),
           size: t.String()

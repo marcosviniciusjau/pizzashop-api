@@ -8,6 +8,7 @@ const envSchema = z.object({
   RESTAURANT_EMAIL: z.string().email(),
   JWT_SECRET_KEY: z.string().min(1),
   RESEND_API_KEY: z.string().min(1),
+  STRIPE_SECRET_KEY: z.string().min(1),
 })
 
 export const env = envSchema.parse(process.env)
