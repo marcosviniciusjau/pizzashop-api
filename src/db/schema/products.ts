@@ -8,6 +8,11 @@ export const categoriesEnum = pgEnum('categories', [
   'beverages',
   'savory snacks',
 ])
+export const sizesEnum = pgEnum('sizes', [
+  'small',
+  'medium',
+  'big',
+])
 
 export const products = pgTable('products', {
   id: text('id')
@@ -15,6 +20,7 @@ export const products = pgTable('products', {
     .primaryKey(),
   name: text('name').notNull(),
   description: text('description'),
+  size: sizesEnum('size'),
   category: categoriesEnum('category').default('pizzas').notNull(),
   priceInCents: integer('price_in_cents').notNull(),
   restaurantId: text('restaurant_id')

@@ -109,6 +109,7 @@ export const createOrder = new Elysia().use(authentication).post(
           productId: t.String(),
           quantity: t.Integer(),
           category: t.String(),
+          size: t.String()
         }),
       ),
     }),
