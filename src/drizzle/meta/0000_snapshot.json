@@ -1,5 +1,5 @@
 {
-  "id": "4a4bdb54-8adb-4758-8b70-106fc423d670",
+  "id": "63276e7a-dd5d-41f9-ab65-0247a7f7d34b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -381,6 +381,13 @@
           "primaryKey": false,
           "notNull": false
         },
+        "size": {
+          "name": "size",
+          "type": "sizes",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
         "category": {
           "name": "category",
           "type": "categories",
@@ -537,6 +544,15 @@
         "pizzas",
         "beverages",
         "savory snacks"
+      ]
+    },
+    "public.sizes": {
+      "name": "sizes",
+      "schema": "public",
+      "values": [
+        "small",
+        "medium",
+        "big"
       ]
     }
   },

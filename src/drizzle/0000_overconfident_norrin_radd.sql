@@ -1,6 +1,7 @@
 CREATE TYPE "public"."user_role" AS ENUM('manager', 'customer');--> statement-breakpoint
 CREATE TYPE "public"."order_status" AS ENUM('pending', 'canceled', 'processing', 'delivering', 'delivered');--> statement-breakpoint
 CREATE TYPE "public"."categories" AS ENUM('pizzas', 'beverages', 'savory snacks');--> statement-breakpoint
+CREATE TYPE "public"."sizes" AS ENUM('small', 'medium', 'big');--> statement-breakpoint
 CREATE TABLE "users" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
@@ -52,6 +53,7 @@ CREATE TABLE "products" (
 	"id" text PRIMARY KEY NOT NULL,
 	"name" text NOT NULL,
 	"description" text,
+	"size" "sizes",
 	"category" "categories" DEFAULT 'pizzas' NOT NULL,
 	"price_in_cents" integer NOT NULL,
 	"restaurant_id" text NOT NULL,
