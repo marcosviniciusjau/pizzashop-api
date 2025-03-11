@@ -5,15 +5,18 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "moduleResolution": "node",
-    "noEmitOnError": false, // permite emitir mesmo com erro
-    "noEmit": false, // habilita o emit
-    "skipLibCheck": true, // ignora erros das libs
-    "strict": false, // desliga regras mais rígidas
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "moduleDetection": "force",
+    "jsx": "react-jsx", // support JSX
+    "allowJs": true, // allow importing `.js` from `.ts`
+    "strict": true,
     "forceConsistentCasingInFileNames": true,
-    "allowSyntheticDefaultImports": true,
-    "allowJs": true,
-    "jsx": "react-jsx",
+    "skipLibCheck": true,
+    "composite": true,
     "downlevelIteration": true,
+    "noImplicitAny": false,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
       "@/*": [

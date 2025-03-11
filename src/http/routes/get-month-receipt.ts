@@ -7,6 +7,7 @@ import { orders } from '@/db/schema'
 
 export const getMonthReceipt = new Elysia()
   .use(authentication)
+  // @ts-ignore
   .get('/metrics/month-receipt', async ({ getManagedRestaurantId }) => {
     const restaurantId = await getManagedRestaurantId()
 

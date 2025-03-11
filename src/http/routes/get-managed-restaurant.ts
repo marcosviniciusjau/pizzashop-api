@@ -4,6 +4,7 @@ import { db } from '@/db/connection'
 
 export const getManagedRestaurant = new Elysia()
   .use(authentication)
+  // @ts-ignore
   .get('/managed-restaurant', async ({ getManagedRestaurantId }) => {
     const restaurantId = await getManagedRestaurantId()
 

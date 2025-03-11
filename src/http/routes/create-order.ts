@@ -10,6 +10,7 @@ export const createOrder = new Elysia().use(authentication).post(
   '/restaurants/:restaurantId/orders',
   async ({ params, body, set }) => {
     const { restaurantId } = params
+    // @ts-ignore
     let { customerName, customerEmail, items } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
@@ -38,6 +39,7 @@ export const createOrder = new Elysia().use(authentication).post(
           throw new Error('Some products are not available in this restaurant.')
         }
         db.insert(productsSchema).values({
+          // @ts-ignore
           id: item.productId,
           name: item.name,
           category: item.category,

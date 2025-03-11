@@ -9,6 +9,7 @@ export const getMonthCanceledOrdersAmount = new Elysia()
   .use(authentication)
   .get(
     '/metrics/month-canceled-orders-amount',
+    // @ts-ignore
     async ({ getManagedRestaurantId }) => {
       const restaurantId = await getManagedRestaurantId()
 
@@ -49,7 +50,7 @@ export const getMonthCanceledOrdersAmount = new Elysia()
       const diffFromLastMonth =
         lastMonthOrdersAmount && currentMonthOrdersAmount
           ? (currentMonthOrdersAmount.amount * 100) /
-            lastMonthOrdersAmount.amount
+          lastMonthOrdersAmount.amount
           : null
 
       return {

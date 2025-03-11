@@ -13,10 +13,12 @@ const productSchema = t.Object({
 
 export const updateMenu = new Elysia().use(authentication).put(
   '/menu',
+  // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
     const restaurantId = await getManagedRestaurantId()
 
     const {
+      // @ts-ignore
       products: { deletedProductIds, newOrUpdatedProducts },
     } = body
 

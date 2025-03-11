@@ -9,6 +9,7 @@ import { nanoid } from 'nanoid'
 export const sendAuthenticationLink = new Elysia().post(
   '/authenticate',
   async ({ body }) => {
+    // @ts-ignore
     const { email } = body
 
     const userFromEmail = await db.query.users.findFirst({

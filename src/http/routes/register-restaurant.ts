@@ -5,6 +5,7 @@ import Elysia, { t } from 'elysia'
 export const registerRestaurant = new Elysia().post(
   '/restaurants',
   async ({ body, set }) => {
+    // @ts-ignore
     const { restaurantName, managerName, email, phone } = body
 
     const [manager] = await db

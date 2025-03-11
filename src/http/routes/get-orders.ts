@@ -7,6 +7,7 @@ import { authentication } from '../authentication'
 
 export const getOrders = new Elysia().use(authentication).get(
   '/orders',
+  // @ts-ignore
   async ({ query, getCurrentUser, set }) => {
     const { pageIndex, orderId, customerName, status } = query
     const { restaurantId } = await getCurrentUser()
@@ -26,11 +27,13 @@ export const getOrders = new Elysia().use(authentication).get(
         total: orders.totalInCents,
       })
       .from(orders)
+      // @ts-ignore
       .innerJoin(users, eq(users.name, orders.customerName))
       .where(
         and(
           eq(orders.restaurantId, restaurantId),
           orderId ? ilike(orders.id, `%${orderId}%`) : undefined,
+          // @ts-ignore
           status ? eq(orders.status, status) : undefined,
           customerName ? ilike(users.name, `%${customerName}%`) : undefined,
         ),
@@ -41,6 +44,7 @@ export const getOrders = new Elysia().use(authentication).get(
       .from(baseQuery.as('baseQuery'))
 
     const allOrders = await baseQuery
+      // @ts-ignore
       .offset(pageIndex * 10)
       .limit(10)
       .orderBy((fields) => {

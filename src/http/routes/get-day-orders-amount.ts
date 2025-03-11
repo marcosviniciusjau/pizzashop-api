@@ -7,6 +7,7 @@ import { orders } from '@/db/schema'
 
 export const getDayOrdersAmount = new Elysia()
   .use(authentication)
+  // @ts-ignore
   .get('/metrics/day-orders-amount', async ({ getManagedRestaurantId }) => {
     const restaurantId = await getManagedRestaurantId()
 

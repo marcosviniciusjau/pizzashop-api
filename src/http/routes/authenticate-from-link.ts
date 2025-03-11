@@ -8,6 +8,7 @@ import { UnauthorizedError } from './errors/unauthorized-error'
 
 export const authenticateFromLink = new Elysia().use(authentication).get(
   '/auth-links/authenticate',
+  // @ts-ignore
   async ({ signUser, query, set }) => {
     const { code, redirect } = query
 

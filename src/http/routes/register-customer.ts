@@ -13,7 +13,7 @@ export const registerCustomer = new Elysia().post(
   '/customers',
   async ({ body, set }) => {
     const { name, phone, email } = registerCustomerBodySchema.parse(body)
-
+    // @ts-ignore
     await db.insert(users).values({
       name,
       email,

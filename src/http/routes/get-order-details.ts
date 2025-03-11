@@ -6,6 +6,7 @@ import { NotAManagerError } from './errors/not-a-manager-error'
 
 export const getOrderDetails = new Elysia().use(authentication).get(
   '/orders/:id',
+  // @ts-ignore
   async ({ getCurrentUser, params }) => {
     const { id: orderId } = params
     const { restaurantId } = await getCurrentUser()

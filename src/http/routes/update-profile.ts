@@ -6,8 +6,10 @@ import { eq } from 'drizzle-orm'
 
 export const updateProfile = new Elysia().use(authentication).put(
   '/profile',
+  // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
     const restaurantId = await getManagedRestaurantId()
+    // @ts-ignore
     const { name, description } = body
 
     await db

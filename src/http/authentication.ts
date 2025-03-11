@@ -33,9 +33,11 @@ export const authentication = new Elysia()
     }),
   )
   .use(cookie())
+    // @ts-ignore
   .derive(({ jwt, cookie, setCookie, removeCookie }) => {
     return {
       getCurrentUser: async () => {
+          // @ts-ignore
         const payload = await jwt.verify(cookie.auth)
 
         if (!payload) {

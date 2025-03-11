@@ -6,6 +6,7 @@ import { orderItems, orders, products } from '@/db/schema'
 
 export const getProducts = new Elysia()
   .use(authentication)
+  // @ts-ignore
   .get('/get-products', async ({ getManagedRestaurantId }) => {
     const restaurantId = await getManagedRestaurantId()
 

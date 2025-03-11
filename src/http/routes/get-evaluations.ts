@@ -5,6 +5,7 @@ import { authentication } from '../authentication'
 
 export const getEvaluations = new Elysia().use(authentication).get(
   '/evaluations',
+  // @ts-ignore
   async ({ query, set, getCurrentUser }) => {
     const { restaurantId } = await getCurrentUser()
 

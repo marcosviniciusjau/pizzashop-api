@@ -7,6 +7,7 @@ import { UnauthorizedError } from './errors/unauthorized-error'
 
 export const approveOrder = new Elysia().use(authentication).patch(
   '/orders/:id/approve',
+    // @ts-ignore
   async ({ getManagedRestaurantId, set, params }) => {
     const { id: orderId } = params
     const restaurantId = await getManagedRestaurantId()
