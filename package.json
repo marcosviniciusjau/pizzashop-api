@@ -8,13 +8,13 @@
     "dev": "bun --watch src/http/server.ts",
     "migrate": "bun src/db/migrate.ts",
     "seed": "bun src/db/seed.ts",
-    "build": "tsc --noEmit --skipDefaultLibCheck --skipLibCheck"
+    "build": "tsc"
   },
   "license": "MIT",
   "dependencies": {
-    "@elysiajs/cookie": "0.8.0",
-    "@elysiajs/cors": "1.2.0",
-    "@elysiajs/jwt": "1.2.0",
+    "@elysiajs/cookie": "^0.7.0",
+    "@elysiajs/cors": "^0.7.2",
+    "@elysiajs/jwt": "^0.7.0",
     "@react-email/components": "0.0.33",
     "dayjs": "1.11.13",
     "drizzle-orm": "0.40.0",
