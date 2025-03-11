@@ -1,20 +1,20 @@
 {
   "compilerOptions": {
-    "types": [
-      "bun-types"
-    ],
     "target": "ES2022",
     "module": "ESNext",
-    "moduleResolution": "node",
-    "jsx": "react-jsx",
-    "allowJs": true,
-    "noEmitOnError": false,
     "outDir": "./dist",
     "rootDir": "./src",
-    "strict": false,
-    "isolatedModules": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true,
+    "moduleResolution": "node",
+    "noEmitOnError": false, // permite emitir mesmo com erro
+    "noEmit": false, // habilita o emit
+    "skipLibCheck": true, // ignora erros das libs
+    "strict": false, // desliga regras mais rígidas
+    "forceConsistentCasingInFileNames": true,
+    "allowSyntheticDefaultImports": true,
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "downlevelIteration": true,
+    "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
@@ -25,6 +25,7 @@
     "src"
   ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "dist"
   ]
 }
