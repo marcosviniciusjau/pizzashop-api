@@ -1,16 +1,30 @@
 {
   "compilerOptions": {
-    "types": ["bun-types"],
-    "target": "ES2022",             // Versão JS de saída
-    "module": "ESNext",             // Usa módulos ES (import/export)
-    "moduleResolution": "node",     // Resolve módulos do node
-    "jsx": "react-jsx", // support JSX
-    "allowJs": true, // allow importing `.js` from `.ts`
-    "outDir": "./dist",             // Pasta onde vai gerar a build
-    "rootDir": "./src",             // Onde estão seus arquivos TS
-    "strict": true,
+    "types": [
+      "bun-types"
+    ],
+    "target": "ES2022",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "jsx": "react-jsx",
+    "allowJs": true,
+    "noEmitOnError": false,
+    "outDir": "./dist",
+    "rootDir": "./src",
+    "strict": false,
+    "isolatedModules": true,
     "esModuleInterop": true,
-    "skipLibCheck": true
+    "skipLibCheck": true,
+    "paths": {
+      "@/*": [
+        "./src/*"
+      ]
+    }
   },
-  "include": ["src"]
+  "include": [
+    "src"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }
