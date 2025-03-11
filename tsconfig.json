@@ -8,6 +8,8 @@
     ],
     "module": "esnext",
     "target": "esnext",
+    "outDir": "./dist",
+    "rootDir": "./src",
     "moduleResolution": "bundler",
     "noEmit": true,
     "allowImportingTsExtensions": true,
