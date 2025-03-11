@@ -1,3 +1,4 @@
 node_modules
 src/db/seed.ts
 .env
+dist
