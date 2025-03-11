@@ -1,13 +1,18 @@
 {
   "compilerOptions": {
-    "types": ["bun-types"],
-    "lib": ["ESNext"],
+    "types": [
+      "bun-types"
+    ],
+    "lib": [
+      "ESNext"
+    ],
     "module": "esnext",
     "target": "esnext",
     "moduleResolution": "bundler",
     "noEmit": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
+    "noImplicitAny": false,
     "jsx": "react-jsx", // support JSX
     "allowJs": true, // allow importing `.js` from `.ts`
     "strict": true,
@@ -15,10 +20,12 @@
     "skipLibCheck": true,
     "composite": true,
     "downlevelIteration": true,
-    "allowSyntheticDefaultImports": true ,
+    "allowSyntheticDefaultImports": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"]
-    }                             
+      "@/*": [
+        "./src/*"
+      ]
+    }
   }
 }
