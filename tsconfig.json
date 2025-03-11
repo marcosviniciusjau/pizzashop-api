@@ -9,8 +9,8 @@
     "skipDefaultLibCheck": true,
     "allowImportingTsExtensions": true,
     "moduleDetection": "force",
-    "jsx": "react-jsx", // support JSX
-    "allowJs": true, // allow importing `.js` from `.ts`
+    "jsx": "react-jsx",
+    "allowJs": true,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
