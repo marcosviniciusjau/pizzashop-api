@@ -34,15 +34,6 @@ const app = new Elysia()
       credentials: true,
       allowedHeaders: ['content-type', 'authorization'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
-      origin: (request): boolean => {
-        const origin = 'http://localhost:3000'
-
-        if (!origin) {
-          return false
-        }
-
-        return true
-      },
     }),
   )
   .use(authentication)
