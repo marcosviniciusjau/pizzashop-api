@@ -6,8 +6,8 @@
   "main": "dist/index.js",
   "scripts": {
     "generate": "drizzle-kit generate",
-    "dev": "turbo run dev",
-    "start": "turbo run dev --parallel",
+    "dev": "bun --watch src/http/server.ts",
+    "start": "bun --watch src/http/server.ts",
     "migrate": "bun src/db/migrate.ts",
     "seed": "bun src/db/seed.ts",
     "build": "tsup src/http/server.ts --out-dir dist --format cjs"
