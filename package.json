@@ -2,13 +2,14 @@
   "name": "pizzashop",
   "type": "module",
   "version": "1.0.0",
+  "packageManager": "bun@1.0.14",
   "main": "dist/index.js",
   "scripts": {
     "generate": "drizzle-kit generate",
-    "dev": "bun --watch src/http/server.ts",
+    "dev": "turbo run dev",
     "migrate": "bun src/db/migrate.ts",
     "seed": "bun src/db/seed.ts",
-    "build": "bun tsup --outDir dist"
+    "build": "turbo run build"
   },
   "license": "MIT",
   "dependencies": {
