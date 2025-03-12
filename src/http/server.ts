@@ -66,6 +66,7 @@ const app = new Elysia()
   .onError(({ code, error, set }) => {
     switch (code) {
       case 'VALIDATION': {
+        console.error(error)
         set.status = error.status
 
         return error.toResponse()
