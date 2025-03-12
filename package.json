@@ -10,7 +10,7 @@
     "start": "turbo run dev --parallel",
     "migrate": "bun src/db/migrate.ts",
     "seed": "bun src/db/seed.ts",
-    "build": "turbo run build"
+    "build": "tsup src/http/server.ts --out-dir dist --format cjs"
   },
   "license": "MIT",
   "dependencies": {
