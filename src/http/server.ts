@@ -69,7 +69,7 @@ const app = new Elysia()
         console.error(error)
         set.status = error.status
 
-        return error.toResponse()
+        return error.message + error.status
       }
       case 'NOT_FOUND': {
         return new Response(null, { status: 404 })
