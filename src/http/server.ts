@@ -76,7 +76,7 @@ const app = new Elysia()
       default: {
         console.error(error)
 
-        return error.toResponse()
+        return new Response(null, { status: 500 })
       }
     }
   })

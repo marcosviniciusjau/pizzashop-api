@@ -30,15 +30,24 @@ export const createOrder = new Elysia().use(authentication).post(
     })
 
     // Map order items to include details such as price and subtotal
-    const orderProducts = items.map((item) => {
+    const orderProducts = []
+
+    for (const item of items) {
       const productOnDb = products.find((product) => product.id === item.productId)
 
-      const productOnStripe = stripe.products.retrieve(item.productId)
+      console.log("items", item)
+
+      let productOnStripe = null
+
       if (!productOnDb) {
+        // @ts-ignore
+        productOnStripe = await stripe.products.retrieve(item.productId)
+
         if (!productOnStripe) {
           throw new Error('Some products are not available in this restaurant.')
         }
-        db.insert(productsSchema).values({
+
+        await db.insert(productsSchema).values({
           // @ts-ignore
           id: item.productId,
           name: item.name,
@@ -49,16 +58,24 @@ export const createOrder = new Elysia().use(authentication).post(
         })
       }
 
-      return {
-        productId: item.productId,
-        unitPriceInCents: productOnDb!.priceInCents,
-        quantity: item.quantity,
-        category: productOnDb!.category,
-        subtotalInCents: item.quantity * productOnDb!.priceInCents,
+      const finalProduct = productOnDb ?? {
+        id: item.productId,
+        category: item.category,
+        priceInCents: item.price
       }
-    })
-    console.log("ta me irritando", orderProducts)
+      // @ts-ignore
+      orderProducts.push({
+        productId: item.productId,
+        unitPriceInCents: finalProduct.priceInCents,
+        quantity: item.quantity,
+        category: finalProduct.category,
+        subtotalInCents: item.quantity * finalProduct.priceInCents,
+      })
+    }
+
+
     const totalInCents = orderProducts.reduce((total, orderItem) => {
+      // @ts-ignore
       return total + orderItem.subtotalInCents
     }, 0)
 
@@ -93,10 +110,14 @@ export const createOrder = new Elysia().use(authentication).post(
             })
 
           await tx.insert(orderItems).values(
+
             orderProducts.map((orderProduct) => ({
               orderId: order.id,
+              // @ts-ignore
               productId: orderProduct.productId,
+              // @ts-ignore
               priceInCents: orderProduct.unitPriceInCents,
+              // @ts-ignore
               quantity: orderProduct.quantity,
             })),
           )
