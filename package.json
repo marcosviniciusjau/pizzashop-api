@@ -24,6 +24,7 @@
     "elysia": "1.2.23",
     "nanoid": "^5.1.2",
     "nodemailer": "6.10.0",
+    "pino": "^9.6.0",
     "postgres": "3.4.5",
     "react": "19.0.0",
     "resend": "4.1.2",

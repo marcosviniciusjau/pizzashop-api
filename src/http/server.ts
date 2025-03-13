@@ -28,12 +28,23 @@ import { dispatchOrder } from './routes/dispatch-order'
 import { deliverOrder } from './routes/deliver-order'
 import { getProducts } from './routes/get-products'
 import { getCustomers } from './routes/get-customers'
+import pino from 'pino'
+const logger = pino();
 const app = new Elysia()
   .use(
     cors({
       credentials: true,
       allowedHeaders: ['content-type', 'authorization'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
+      origin: (request): boolean => {
+        const origin = request.headers.get('origin')
+
+        if (!origin) {
+          return false
+        }
+
+        return true
+      },
     }),
   )
   .use(authentication)
@@ -64,23 +75,46 @@ const app = new Elysia()
   .use(getProducts)
   .use(getCustomers)
   .onError(({ code, error, set }) => {
+    set.headers['Content-Type'] = 'application/json';
+  
     switch (code) {
       case 'VALIDATION': {
-        console.error(error)
-        set.status = error.status
-
-        return error.message
+        set.status = 422;
+  
+        return {
+          error: 'Validation Error',
+          message: error.message,
+          property: error.property,
+          summary: error.summary,
+          // Opcional: envie apenas o necessário
+          path: error.property,
+          details: error.errors?.map(e => ({
+            path: e.path,
+            message: e.message,
+            expected: e.schema?.type,
+            received: e.value,
+          })) || []
+        };
       }
+  
       case 'NOT_FOUND': {
-        return new Response(null, { status: 404 })
+        set.status = 404;
+        return {
+          error: 'Resource not found',
+        };
       }
+  
       default: {
-        console.error(error)
-
-        return new Response(null, { status: 500 })
+        console.error(error);
+  
+        set.status = 500;
+        return {
+          error: 'Internal Server Error'
+        };
       }
     }
-  })
+  });
+  
 
 app.listen(3333)
 
