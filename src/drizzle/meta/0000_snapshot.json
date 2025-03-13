@@ -1,5 +1,5 @@
 {
-  "id": "63276e7a-dd5d-41f9-ab65-0247a7f7d34b",
+  "id": "bf11504a-3634-4915-b742-231e3d32b080",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -59,13 +59,6 @@
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {
-        "users_name_unique": {
-          "name": "users_name_unique",
-          "nullsNotDistinct": false,
-          "columns": [
-            "name"
-          ]
-        },
         "users_email_unique": {
           "name": "users_email_unique",
           "nullsNotDistinct": false,
@@ -187,28 +180,28 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "evaluations_customer_id_users_name_fk": {
-          "name": "evaluations_customer_id_users_name_fk",
+        "evaluations_customer_id_users_id_fk": {
+          "name": "evaluations_customer_id_users_id_fk",
           "tableFrom": "evaluations",
           "tableTo": "users",
           "columnsFrom": [
             "customer_id"
           ],
           "columnsTo": [
-            "name"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "evaluations_restaurant_id_users_name_fk": {
-          "name": "evaluations_restaurant_id_users_name_fk",
+        "evaluations_restaurant_id_users_id_fk": {
+          "name": "evaluations_restaurant_id_users_id_fk",
           "tableFrom": "evaluations",
           "tableTo": "users",
           "columnsFrom": [
             "restaurant_id"
           ],
           "columnsTo": [
-            "name"
+            "id"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -230,8 +223,8 @@
           "primaryKey": true,
           "notNull": true
         },
-        "customer_email": {
-          "name": "customer_email",
+        "customer_id": {
+          "name": "customer_id",
           "type": "text",
           "primaryKey": false,
           "notNull": true
@@ -266,15 +259,15 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "orders_customer_email_users_email_fk": {
-          "name": "orders_customer_email_users_email_fk",
+        "orders_customer_id_users_id_fk": {
+          "name": "orders_customer_id_users_id_fk",
           "tableFrom": "orders",
           "tableTo": "users",
           "columnsFrom": [
-            "customer_email"
+            "customer_id"
           ],
           "columnsTo": [
-            "email"
+            "id"
           ],
           "onDelete": "set null",
           "onUpdate": "no action"

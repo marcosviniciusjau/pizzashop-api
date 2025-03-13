@@ -82,7 +82,7 @@ export const createOrder = new Elysia().use(authentication).post(
     const customerExists = await db.query.users.findFirst({
       where: (users, { eq }) => eq(users.email, customerEmail),
     })
-
+    let customerId = ""
     if (!customerExists) {
       const [newCustomer] = await db
         .insert(users)
@@ -90,9 +90,10 @@ export const createOrder = new Elysia().use(authentication).post(
           name: customerName,
           email: customerEmail
         })
-        .returning({ email: users.email })
+        .returning({ id: users.id })
 
-      customerEmail = newCustomer.email!
+      customerId = newCustomer.id!
+      console.log(newCustomer.id)
     }
 
     try {
@@ -102,7 +103,7 @@ export const createOrder = new Elysia().use(authentication).post(
             .insert(orders)
             .values({
               totalInCents,
-              customerEmail,
+              customerId,
               restaurantId,
             })
             .returning({

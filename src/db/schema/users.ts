@@ -7,9 +7,9 @@ export const userRoleEnum = pgEnum('user_role', ['manager', 'customer'])
 
 export const users = pgTable('users', {
   id: text('id')
-      .$defaultFn(() => nanoid())
+    .$defaultFn(() => nanoid())
     .primaryKey(),
-  name: text('name').notNull().unique(),
+  name: text('name').notNull(),
   email: text('email').notNull().unique(),
   phone: text('phone'),
   role: userRoleEnum('role').default('customer').notNull(),
