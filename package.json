@@ -12,16 +12,18 @@
     "seed": "bun src/db/seed.ts",
     "build": "tsup src/http/server.ts --out-dir dist --format cjs"
   },
+  
+  "author": "Diego Fernandes <diego.schell.f@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "@elysiajs/cookie": "0.8.0",
-    "@elysiajs/cors": "1.2.0",
-    "@elysiajs/jwt": "1.2.0",
+    "@elysiajs/cookie": "^0.7.0",
+    "@elysiajs/cors": "^0.7.2",
+    "@elysiajs/jwt": "^0.7.0",
     "@react-email/components": "0.0.33",
     "dayjs": "1.11.13",
     "drizzle-orm": "0.40.0",
     "drizzle-typebox": "0.3.0",
-    "elysia": "1.2.23",
+    "elysia":  "0.7.29",
     "nanoid": "^5.1.2",
     "nodemailer": "6.10.0",
     "pino": "^9.6.0",
