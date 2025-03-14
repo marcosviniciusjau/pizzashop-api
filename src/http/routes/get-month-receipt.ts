@@ -4,12 +4,12 @@ import { and, eq, gte, sql, sum } from 'drizzle-orm'
 import dayjs from 'dayjs'
 import { db } from '@/db/connection'
 import { orders } from '@/db/schema'
-
+import { env } from '@/env'
 export const getMonthReceipt = new Elysia()
   .use(authentication)
   // @ts-ignore
   .get('/metrics/month-receipt', async ({ getManagedRestaurantId }) => {
-    const restaurantId = await getManagedRestaurantId()
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
 
     const today = dayjs()
     const lastMonth = today.subtract(1, 'month')

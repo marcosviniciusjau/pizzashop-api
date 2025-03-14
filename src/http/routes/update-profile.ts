@@ -3,12 +3,12 @@ import { authentication } from '../authentication'
 import { db } from '@/db/connection'
 import { restaurants } from '@/db/schema'
 import { eq } from 'drizzle-orm'
-
+import { env } from '@/env'
 export const updateProfile = new Elysia().use(authentication).put(
   '/profile',
   // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = await getManagedRestaurantId()
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
     // @ts-ignore
     const { name, description } = body
 

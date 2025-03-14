@@ -3,7 +3,7 @@ import { authentication } from '../authentication'
 import { db } from '@/db/connection'
 import { products } from '@/db/schema'
 import { and, eq, inArray } from 'drizzle-orm'
-
+import { env } from '@/env'
 const productSchema = t.Object({
   id: t.Optional(t.String()),
   name: t.String(),
@@ -15,7 +15,7 @@ export const updateMenu = new Elysia().use(authentication).put(
   '/menu',
   // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = await getManagedRestaurantId()
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
 
     const {
       // @ts-ignore

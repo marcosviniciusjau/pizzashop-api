@@ -11,11 +11,17 @@ export const createOrder = new Elysia().use(authentication).post(
   async ({ params, body, set }) => {
     const { restaurantId } = params
     // @ts-ignore
-    let { customerName, customerEmail, items } = body
+    let { customerId, customerName, customerEmail, items } = body
 
     if (!items || !Array.isArray(items) || items.length === 0) {
       set.status = 400
       return { error: 'Itens do pedido são obrigatórios.' }
+    }
+    if (!customerId) {
+      if (!customerName || !customerEmail) {
+        set.status = 400
+        return { error: 'Nome e e-mail do cliente são obrigatórios quando não há customerId.' }
+      }
     }
     const productIds = items.map((item) => item.productId)
 
@@ -80,9 +86,8 @@ export const createOrder = new Elysia().use(authentication).post(
     }, 0)
 
     const customerExists = await db.query.users.findFirst({
-      where: (users, { eq }) => eq(users.email, customerEmail),
+      where: (users, { eq }) => eq(users.id, customerId),
     })
-    let customerId = ""
     if (!customerExists) {
       const [newCustomer] = await db
         .insert(users)
@@ -93,9 +98,7 @@ export const createOrder = new Elysia().use(authentication).post(
         .returning({ id: users.id })
 
       customerId = newCustomer.id!
-      console.log(newCustomer.id)
     }
-
     try {
       await db.transaction(async (tx) => {
         try {
@@ -138,16 +141,16 @@ export const createOrder = new Elysia().use(authentication).post(
   },
   {
     body: t.Object({
-      customerName: t.String(),
-      customerEmail: t.String(),
+      customerId: t.String(),
+      customerName:  t.Optional(t.String()),
+      customerEmail: t.Optional(t.String()),
       items: t.Array(
         t.Object({
           productId: t.String(),
-          name: t.String(),
           price: t.Number({ minimum: 1 }),
           quantity: t.Integer(),
           category: t.String(),
-          size: t.String()
+          size:  t.Optional(t.String()),
         }),
       ),
     }),

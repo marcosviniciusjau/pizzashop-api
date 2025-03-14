@@ -1,16 +1,17 @@
 import Elysia, { t } from 'elysia'
-import { orders, users } from '@/db/schema'
+import { orders, users, orderItems, products } from '@/db/schema'
 import { db } from '@/db/connection'
 import { eq, and, ilike, desc, count, sql } from 'drizzle-orm'
 import { createSelectSchema } from 'drizzle-typebox'
 import { authentication } from '../authentication'
 
+import { env } from '@/env'
 export const getOrders = new Elysia().use(authentication).get(
   '/orders',
   // @ts-ignore
   async ({ query, getCurrentUser, set }) => {
-    const { pageIndex, orderId, customerName, status } = query
-    const { restaurantId } = await getCurrentUser()
+    const { pageIndex, orderId, customerName, productName, status } = query
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
 
     if (!restaurantId) {
       set.status = 401
@@ -23,12 +24,15 @@ export const getOrders = new Elysia().use(authentication).get(
         orderId: orders.id,
         createdAt: orders.createdAt,
         status: orders.status,
+        productName: products.name,
         customerName: users.name,
         total: orders.totalInCents,
       })
       .from(orders)
       // @ts-ignore
-      .innerJoin(users, eq(users.name, orders.customerName))
+      .innerJoin(users, eq(users.id, orders.customerId))
+      .innerJoin(orderItems, eq(orderItems.orderId, orders.id)) // você precisa juntar orderItems
+      .innerJoin(products, eq(products.id, orderItems.productId)) // depois juntar products via orderItems
       .where(
         and(
           eq(orders.restaurantId, restaurantId),
@@ -36,6 +40,7 @@ export const getOrders = new Elysia().use(authentication).get(
           // @ts-ignore
           status ? eq(orders.status, status) : undefined,
           customerName ? ilike(users.name, `%${customerName}%`) : undefined,
+          productName ? ilike(products.name, `%${products}%`) : undefined,
         ),
       )
 
@@ -74,6 +79,7 @@ export const getOrders = new Elysia().use(authentication).get(
   {
     query: t.Object({
       customerName: t.Optional(t.String()),
+      productName: t.Optional(t.String()),
       orderId: t.Optional(t.String()),
       status: t.Optional(createSelectSchema(orders).properties.status),
       pageIndex: t.Numeric({ minimum: 0 }),

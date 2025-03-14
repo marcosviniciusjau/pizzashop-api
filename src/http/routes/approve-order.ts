@@ -4,13 +4,14 @@ import { db } from '@/db/connection'
 import { orders } from '@/db/schema'
 import { eq } from 'drizzle-orm'
 import { UnauthorizedError } from './errors/unauthorized-error'
+import { env } from '@/env'
 
 export const approveOrder = new Elysia().use(authentication).patch(
   '/orders/:id/approve',
-    // @ts-ignore
+  // @ts-ignore
   async ({ getManagedRestaurantId, set, params }) => {
     const { id: orderId } = params
-    const restaurantId = await getManagedRestaurantId()
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
 
     const order = await db.query.orders.findFirst({
       where(fields, { eq, and }) {

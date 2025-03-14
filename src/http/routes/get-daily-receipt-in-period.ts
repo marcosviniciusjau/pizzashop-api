@@ -4,12 +4,12 @@ import { and, count, eq, gte, lte, sql, sum } from 'drizzle-orm'
 import dayjs from 'dayjs'
 import { db } from '@/db/connection'
 import { orders } from '@/db/schema'
-
+import { env } from '@/env'
 export const getDailyReceiptInPeriod = new Elysia().use(authentication).get(
   '/metrics/daily-receipt-in-period',
   // @ts-ignore
   async ({ getManagedRestaurantId, query, set }) => {
-    const restaurantId = await getManagedRestaurantId()
+    const restaurantId = env.DEFAULT_RESTAURANT_ID
 
     const { from, to } = query
 
