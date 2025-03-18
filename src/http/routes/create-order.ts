@@ -56,6 +56,7 @@ export const createOrder = new Elysia().use(authentication).post(
         await db.insert(productsSchema).values({
           // @ts-ignore
           id: item.productId,
+          // @ts-ignore
           name: item.name,
           category: item.category,
           size: item.size,
@@ -86,27 +87,33 @@ export const createOrder = new Elysia().use(authentication).post(
     }, 0)
 
     const customerExists = await db.query.users.findFirst({
+      // @ts-ignore
       where: (users, { eq }) => eq(users.id, customerId),
     })
+    let newCustomerId = ""
     if (!customerExists) {
       const [newCustomer] = await db
         .insert(users)
         .values({
+          // @ts-ignore
           name: customerName,
           email: customerEmail
         })
         .returning({ id: users.id })
 
-      customerId = newCustomer.id!
+        newCustomerId = newCustomer.id!
     }
+
     try {
       await db.transaction(async (tx) => {
         try {
           const [order] = await tx
             .insert(orders)
+            
+              // @ts-ignore
             .values({
               totalInCents,
-              customerId,
+              customerId : customerId ? newCustomerId : null,
               restaurantId,
             })
             .returning({
