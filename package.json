@@ -9,8 +9,7 @@
     "dev": "bun --watch src/http/server.ts",
     "start": "bun --watch src/http/server.ts",
     "migrate": "bun src/db/migrate.ts",
-    "seed": "bun src/db/seed.ts",
-    "build": "turbo run build"
+    "seed": "bun src/db/seed.ts"
   },
   
   "author": "Diego Fernandes <diego.schell.f@gmail.com>",
