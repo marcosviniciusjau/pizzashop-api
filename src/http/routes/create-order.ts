@@ -141,7 +141,7 @@ export const createOrder = new Elysia().use(authentication).post(
   },
   {
     body: t.Object({
-      customerId: t.String(),
+      customerId: t.Optional(t.String()),
       customerName:  t.Optional(t.String()),
       customerEmail: t.Optional(t.String()),
       items: t.Array(
