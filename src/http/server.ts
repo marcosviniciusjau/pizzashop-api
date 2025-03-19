@@ -29,6 +29,7 @@ import { deliverOrder } from './routes/deliver-order'
 import { getProducts } from './routes/get-products'
 import { getCustomers } from './routes/get-customers'
 import pino from 'pino'
+import { getOrderQuantity } from './routes/get-order-quantity'
 const logger = pino();
 const app = new Elysia()
   .use(
@@ -53,6 +54,7 @@ const app = new Elysia()
   .use(getManagedRestaurant)
   .use(registerRestaurant)
   .use(registerCustomer)
+  .use(getOrderQuantity)
   .use(sendAuthenticationLink)
   .use(authenticateFromLink)
   .use(createOrder)
@@ -76,11 +78,11 @@ const app = new Elysia()
   .use(getCustomers)
   .onError(({ code, error, set }) => {
     set.headers['Content-Type'] = 'application/json';
-  
+
     switch (code) {
       case 'VALIDATION': {
         set.status = 422;
-  
+
         return {
           error: 'Validation Error',
           message: error.message,
@@ -96,17 +98,17 @@ const app = new Elysia()
           })) || []
         };
       }
-  
+
       case 'NOT_FOUND': {
         set.status = 404;
         return {
           error: 'Resource not found',
         };
       }
-  
+
       default: {
         console.error(error);
-  
+
         set.status = 500;
         return {
           error: 'Internal Server Error'
@@ -114,7 +116,7 @@ const app = new Elysia()
       }
     }
   });
-  
+
 
 app.listen(3333)
 

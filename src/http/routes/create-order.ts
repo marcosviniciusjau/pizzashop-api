@@ -6,6 +6,7 @@ import { orderItems } from '@/db/schema/order-items'
 import { users } from '@/db/schema/users'
 import { products as productsSchema } from '@/db/schema';
 import { stripe } from "@/lib/stripe";
+import { eq } from 'drizzle-orm'
 export const createOrder = new Elysia().use(authentication).post(
   '/restaurants/:restaurantId/orders',
   async ({ params, body, set }) => {
@@ -48,12 +49,13 @@ export const createOrder = new Elysia().use(authentication).post(
       if (!productOnDb) {
         // @ts-ignore
         productOnStripe = await stripe.products.retrieve(item.productId)
-
+        console.log("vou achar o erro", productOnStripe)
         if (!productOnStripe) {
           throw new Error('Some products are not available in this restaurant.')
         }
 
-        await db.insert(productsSchema).values({
+        console.log("vou achar o erro antes de inserir")
+        const problema = await db.insert(productsSchema).values({
           // @ts-ignore
           id: item.productId,
           // @ts-ignore
@@ -63,8 +65,9 @@ export const createOrder = new Elysia().use(authentication).post(
           priceInCents: item.price,
           restaurantId
         })
-      }
 
+        console.log("problema", problema)
+      }
       const finalProduct = productOnDb ?? {
         id: item.productId,
         category: item.category,
@@ -80,17 +83,15 @@ export const createOrder = new Elysia().use(authentication).post(
       })
     }
 
-
     const totalInCents = orderProducts.reduce((total, orderItem) => {
       // @ts-ignore
       return total + orderItem.subtotalInCents
     }, 0)
 
     const customerExists = await db.query.users.findFirst({
-      // @ts-ignore
-      where: (users, { eq }) => eq(users.id, customerId),
+      where: eq(users.email, customerEmail!) || eq(users.id, customerId!),
     })
-    let newCustomerId = ""
+
     if (!customerExists) {
       const [newCustomer] = await db
         .insert(users)
@@ -101,7 +102,7 @@ export const createOrder = new Elysia().use(authentication).post(
         })
         .returning({ id: users.id })
 
-        newCustomerId = newCustomer.id!
+      customerId = newCustomer.id!
     }
 
     try {
@@ -109,11 +110,11 @@ export const createOrder = new Elysia().use(authentication).post(
         try {
           const [order] = await tx
             .insert(orders)
-            
-              // @ts-ignore
+
+            // @ts-ignore
             .values({
               totalInCents,
-              customerId : customerId ? newCustomerId : null,
+              customerId: customerExists ? customerExists.id : customerId,
               restaurantId,
             })
             .returning({
@@ -149,7 +150,7 @@ export const createOrder = new Elysia().use(authentication).post(
   {
     body: t.Object({
       customerId: t.Optional(t.String()),
-      customerName:  t.Optional(t.String()),
+      customerName: t.Optional(t.String()),
       customerEmail: t.Optional(t.String()),
       items: t.Array(
         t.Object({
@@ -157,7 +158,7 @@ export const createOrder = new Elysia().use(authentication).post(
           price: t.Number({ minimum: 1 }),
           quantity: t.Integer(),
           category: t.String(),
-          size:  t.Optional(t.String()),
+          size: t.Optional(t.String()),
         }),
       ),
     }),

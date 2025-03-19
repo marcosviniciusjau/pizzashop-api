@@ -7,6 +7,7 @@ export const getProfile = new Elysia()
   // @ts-ignore
   .get('/me', async ({ getCurrentUser }) => {
     const { sub: userId } = await getCurrentUser()
+    console.log("pq vc implicoou?", userId)
 
     const user = await db.query.users.findFirst({
       where(fields, { eq }) {
