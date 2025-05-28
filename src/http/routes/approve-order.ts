@@ -8,10 +8,9 @@ import { env } from '@/env'
 
 export const approveOrder = new Elysia().use(authentication).patch(
   '/orders/:id/approve',
-  // @ts-ignore
   async ({ getManagedRestaurantId, set, params }) => {
     const { id: orderId } = params
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     const order = await db.query.orders.findFirst({
       where(fields, { eq, and }) {

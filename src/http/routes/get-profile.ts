@@ -4,10 +4,8 @@ import { db } from '@/db/connection'
 
 export const getProfile = new Elysia()
   .use(authentication)
-  // @ts-ignore
   .get('/me', async ({ getCurrentUser }) => {
     const { sub: userId } = await getCurrentUser()
-    console.log("pq vc implicoou?", userId)
 
     const user = await db.query.users.findFirst({
       where(fields, { eq }) {

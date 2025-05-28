@@ -9,7 +9,7 @@ export const getOrderDetails = new Elysia().use(authentication).get(
   // @ts-ignore
   async ({ getCurrentUser, params }) => {
     const { id: orderId } = params
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     if (!restaurantId) {
       throw new NotAManagerError()

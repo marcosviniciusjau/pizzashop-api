@@ -2,16 +2,13 @@ import Elysia, { t } from 'elysia'
 import { orders, users, orderItems, products } from '@/db/schema'
 import { db } from '@/db/connection'
 import { eq, and, ilike, desc, count, sql } from 'drizzle-orm'
-import { createSelectSchema } from 'drizzle-typebox'
 import { authentication } from '../authentication'
 
-import { env } from '@/env'
 export const getOrders = new Elysia().use(authentication).get(
   '/orders',
-  // @ts-ignore
   async ({ query, getCurrentUser, set }) => {
     const { pageIndex, orderId, customerName, status } = query
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const { restaurantId } = await getCurrentUser()
 
     if (!restaurantId) {
       set.status = 401
@@ -28,7 +25,6 @@ export const getOrders = new Elysia().use(authentication).get(
         total: orders.totalInCents,
       })
       .from(orders)
-      // @ts-ignore
       .innerJoin(users, eq(users.id, orders.customerId))
       .innerJoin(orderItems, eq(orderItems.orderId, orders.id)) // você precisa juntar orderItems
       .innerJoin(products, eq(products.id, orderItems.productId)) // depois juntar products via orderItems
@@ -36,7 +32,6 @@ export const getOrders = new Elysia().use(authentication).get(
         and(
           eq(orders.restaurantId, restaurantId),
           orderId ? ilike(orders.id, `%${orderId}%`) : undefined,
-          // @ts-ignore
           status ? eq(orders.status, status) : undefined,
           customerName ? ilike(users.name, `%${customerName}%`) : undefined,
         ),
@@ -47,7 +42,6 @@ export const getOrders = new Elysia().use(authentication).get(
       .from(baseQuery.as('baseQuery'))
 
     const allOrders = await baseQuery
-      // @ts-ignore
       .offset(pageIndex * 10)
       .limit(10)
       .orderBy((fields) => {
@@ -78,7 +72,15 @@ export const getOrders = new Elysia().use(authentication).get(
     query: t.Object({
       customerName: t.Optional(t.String()),
       orderId: t.Optional(t.String()),
-      status: t.Optional(createSelectSchema(orders).properties.status),
+      status: t.Optional(
+        t.Union([
+          t.Literal('pending'),
+          t.Literal('canceled'),
+          t.Literal('processing'),
+          t.Literal('delivering'),
+          t.Literal('delivered'),
+        ])
+      ),
       pageIndex: t.Numeric({ minimum: 0 }),
     }),
   },

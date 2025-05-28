@@ -15,7 +15,7 @@ export const updateMenu = new Elysia().use(authentication).put(
   '/menu',
   // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     const {
       // @ts-ignore

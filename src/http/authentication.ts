@@ -1,13 +1,14 @@
-import Elysia, { Static, t } from 'elysia'
+import Elysia from 'elysia'
 import cookie from '@elysiajs/cookie'
 import jwt from '@elysiajs/jwt'
+import { Type, Static } from '@sinclair/typebox'
 import { env } from '@/env'
 import { UnauthorizedError } from './routes/errors/unauthorized-error'
 import { NotAManagerError } from './routes/errors/not-a-manager-error'
 
-const jwtPayloadSchema = t.Object({
-  sub: t.String(),
-  restaurantId: t.Optional(t.String()),
+const jwtPayloadSchema = Type.Object({
+  sub: Type.String(),
+  restaurantId: Type.Optional(Type.String()),
 })
 
 export const authentication = new Elysia()
@@ -33,11 +34,9 @@ export const authentication = new Elysia()
     }),
   )
   .use(cookie())
-  // @ts-ignore
   .derive(({ jwt, cookie, setCookie, removeCookie }) => {
     return {
       getCurrentUser: async () => {
-        // @ts-ignore
         const payload = await jwt.verify(cookie.auth)
 
         if (!payload) {
@@ -47,7 +46,7 @@ export const authentication = new Elysia()
         return payload
       },
       signUser: async (payload: Static<typeof jwtPayloadSchema>) => {
-        setCookie('auth', await jwt.sign(payload), {
+        setCookie('auth', await jwt.sign(payload as any), {
           httpOnly: true,
           maxAge: 7 * 86400,
           path: '/',

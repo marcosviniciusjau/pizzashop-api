@@ -27,7 +27,7 @@ var __toESM = (mod, isNodeMode, target) => (target = mod != null ? __create(__ge
 ));
 
 // src/http/server.ts
-var import_elysia28 = require("elysia");
+var import_elysia29 = require("elysia");
 var import_cors = require("@elysiajs/cors");
 
 // src/db/schema/index.ts
@@ -360,8 +360,8 @@ var sendAuthenticationLink = new import_elysia3.default().post(
   async ({ body }) => {
     const { email } = body;
     const userFromEmail = await db.query.users.findFirst({
-      where(fields, { eq: eq16 }) {
-        return eq16(fields.email, email);
+      where(fields, { eq: eq18 }) {
+        return eq18(fields.email, email);
       }
     });
     if (!userFromEmail) {
@@ -400,6 +400,7 @@ var import_elysia5 = __toESM(require("elysia"), 1);
 var import_elysia4 = __toESM(require("elysia"), 1);
 var import_cookie = __toESM(require("@elysiajs/cookie"), 1);
 var import_jwt = __toESM(require("@elysiajs/jwt"), 1);
+var import_typebox = require("@sinclair/typebox");
 
 // src/http/routes/errors/not-a-manager-error.ts
 var NotAManagerError = class extends Error {
@@ -409,9 +410,9 @@ var NotAManagerError = class extends Error {
 };
 
 // src/http/authentication.ts
-var jwtPayloadSchema = import_elysia4.t.Object({
-  sub: import_elysia4.t.String(),
-  restaurantId: import_elysia4.t.Optional(import_elysia4.t.String())
+var jwtPayloadSchema = import_typebox.Type.Object({
+  sub: import_typebox.Type.String(),
+  restaurantId: import_typebox.Type.Optional(import_typebox.Type.String())
 });
 var authentication = new import_elysia4.default().error({
   UNAUTHORIZED: UnauthorizedError,
@@ -474,6 +475,7 @@ var stripe = new import_stripe.default(stripeSecretKey, {
 });
 
 // src/http/routes/create-order.ts
+var import_drizzle_orm7 = require("drizzle-orm");
 var createOrder = new import_elysia5.default().use(authentication).post(
   "/restaurants/:restaurantId/orders",
   async ({ params, body, set }) => {
@@ -491,9 +493,9 @@ var createOrder = new import_elysia5.default().use(authentication).post(
     }
     const productIds = items.map((item) => item.productId);
     const products2 = await db.query.products.findMany({
-      where(fields, { eq: eq16, and: and10, inArray: inArray2 }) {
+      where(fields, { eq: eq18, and: and10, inArray: inArray2 }) {
         return and10(
-          eq16(fields.restaurantId, restaurantId),
+          eq18(fields.restaurantId, restaurantId),
           inArray2(fields.id, productIds)
         );
       }
@@ -505,18 +507,22 @@ var createOrder = new import_elysia5.default().use(authentication).post(
       let productOnStripe = null;
       if (!productOnDb) {
         productOnStripe = await stripe.products.retrieve(item.productId);
+        console.log("vou achar o erro", productOnStripe);
         if (!productOnStripe) {
           throw new Error("Some products are not available in this restaurant.");
         }
-        await db.insert(products).values({
+        console.log("vou achar o erro antes de inserir");
+        const problema = await db.insert(products).values({
           // @ts-ignore
           id: item.productId,
+          // @ts-ignore
           name: item.name,
           category: item.category,
           size: item.size,
           priceInCents: item.price,
           restaurantId
         });
+        console.log("problema", problema);
       }
       const finalProduct = productOnDb ?? {
         id: item.productId,
@@ -535,10 +541,11 @@ var createOrder = new import_elysia5.default().use(authentication).post(
       return total + orderItem.subtotalInCents;
     }, 0);
     const customerExists = await db.query.users.findFirst({
-      where: (users2, { eq: eq16 }) => eq16(users2.id, customerId)
+      where: (0, import_drizzle_orm7.eq)(users.email, customerEmail) || (0, import_drizzle_orm7.eq)(users.id, customerId)
     });
     if (!customerExists) {
       const [newCustomer] = await db.insert(users).values({
+        // @ts-ignore
         name: customerName,
         email: customerEmail
       }).returning({ id: users.id });
@@ -549,7 +556,7 @@ var createOrder = new import_elysia5.default().use(authentication).post(
         try {
           const [order] = await tx.insert(orders).values({
             totalInCents,
-            customerId,
+            customerId: customerExists ? customerExists.id : customerId,
             restaurantId
           }).returning({
             id: orders.id
@@ -580,7 +587,7 @@ var createOrder = new import_elysia5.default().use(authentication).post(
   },
   {
     body: import_elysia5.t.Object({
-      customerId: import_elysia5.t.String(),
+      customerId: import_elysia5.t.Optional(import_elysia5.t.String()),
       customerName: import_elysia5.t.Optional(import_elysia5.t.String()),
       customerEmail: import_elysia5.t.Optional(import_elysia5.t.String()),
       items: import_elysia5.t.Array(
@@ -601,18 +608,17 @@ var createOrder = new import_elysia5.default().use(authentication).post(
 
 // src/http/routes/approve-order.ts
 var import_elysia6 = __toESM(require("elysia"), 1);
-var import_drizzle_orm7 = require("drizzle-orm");
+var import_drizzle_orm8 = require("drizzle-orm");
 var approveOrder = new import_elysia6.default().use(authentication).patch(
   "/orders/:id/approve",
-  // @ts-ignore
-  async ({ getManagedRestaurantId, set, params }) => {
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, set, params }) => {
     const { id: orderId } = params;
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = await getManagedRestaurantId2();
     const order = await db.query.orders.findFirst({
-      where(fields, { eq: eq16, and: and10 }) {
+      where(fields, { eq: eq18, and: and10 }) {
         return and10(
-          eq16(fields.id, orderId),
-          eq16(fields.restaurantId, restaurantId)
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
         );
       }
     });
@@ -625,7 +631,7 @@ var approveOrder = new import_elysia6.default().use(authentication).patch(
     }
     await db.update(orders).set({
       status: "processing"
-    }).where((0, import_drizzle_orm7.eq)(orders.id, orderId));
+    }).where((0, import_drizzle_orm8.eq)(orders.id, orderId));
     set.status = 204;
   },
   {
@@ -637,10 +643,9 @@ var approveOrder = new import_elysia6.default().use(authentication).patch(
 
 // src/http/routes/cancel-order.ts
 var import_elysia7 = __toESM(require("elysia"), 1);
-var import_drizzle_orm8 = require("drizzle-orm");
+var import_drizzle_orm9 = require("drizzle-orm");
 var cancelOrder = new import_elysia7.default().use(authentication).patch(
   "/orders/:id/cancel",
-  // @ts-ignore
   async ({ getCurrentUser, set, params }) => {
     const { id: orderId } = params;
     const { restaurantId } = await getCurrentUser();
@@ -649,10 +654,10 @@ var cancelOrder = new import_elysia7.default().use(authentication).patch(
       throw new Error("User is not a restaurant manager.");
     }
     const order = await db.query.orders.findFirst({
-      where(fields, { eq: eq16, and: and10 }) {
+      where(fields, { eq: eq18, and: and10 }) {
         return and10(
-          eq16(fields.id, orderId),
-          eq16(fields.restaurantId, restaurantId)
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
         );
       }
     });
@@ -669,7 +674,7 @@ var cancelOrder = new import_elysia7.default().use(authentication).patch(
     }
     await db.update(orders).set({
       status: "canceled"
-    }).where((0, import_drizzle_orm8.eq)(orders.id, orderId));
+    }).where((0, import_drizzle_orm9.eq)(orders.id, orderId));
     set.status = 204;
   },
   {
@@ -681,14 +686,12 @@ var cancelOrder = new import_elysia7.default().use(authentication).patch(
 
 // src/http/routes/get-orders.ts
 var import_elysia8 = __toESM(require("elysia"), 1);
-var import_drizzle_orm9 = require("drizzle-orm");
-var import_drizzle_typebox = require("drizzle-typebox");
+var import_drizzle_orm10 = require("drizzle-orm");
 var getOrders = new import_elysia8.default().use(authentication).get(
   "/orders",
-  // @ts-ignore
   async ({ query, getCurrentUser, set }) => {
-    const { pageIndex, orderId, customerName, productName, status } = query;
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+    const { pageIndex, orderId, customerName, status } = query;
+    const { restaurantId } = await getCurrentUser();
     if (!restaurantId) {
       set.status = 401;
       throw new Error("User is not a restaurant manager.");
@@ -697,30 +700,27 @@ var getOrders = new import_elysia8.default().use(authentication).get(
       orderId: orders.id,
       createdAt: orders.createdAt,
       status: orders.status,
-      productName: products.name,
       customerName: users.name,
       total: orders.totalInCents
-    }).from(orders).innerJoin(users, (0, import_drizzle_orm9.eq)(users.id, orders.customerId)).innerJoin(orderItems, (0, import_drizzle_orm9.eq)(orderItems.orderId, orders.id)).innerJoin(products, (0, import_drizzle_orm9.eq)(products.id, orderItems.productId)).where(
-      (0, import_drizzle_orm9.and)(
-        (0, import_drizzle_orm9.eq)(orders.restaurantId, restaurantId),
-        orderId ? (0, import_drizzle_orm9.ilike)(orders.id, `%${orderId}%`) : void 0,
-        // @ts-ignore
-        status ? (0, import_drizzle_orm9.eq)(orders.status, status) : void 0,
-        customerName ? (0, import_drizzle_orm9.ilike)(users.name, `%${customerName}%`) : void 0,
-        productName ? (0, import_drizzle_orm9.ilike)(products.name, `%${products}%`) : void 0
+    }).from(orders).innerJoin(users, (0, import_drizzle_orm10.eq)(users.id, orders.customerId)).innerJoin(orderItems, (0, import_drizzle_orm10.eq)(orderItems.orderId, orders.id)).innerJoin(products, (0, import_drizzle_orm10.eq)(products.id, orderItems.productId)).where(
+      (0, import_drizzle_orm10.and)(
+        (0, import_drizzle_orm10.eq)(orders.restaurantId, restaurantId),
+        orderId ? (0, import_drizzle_orm10.ilike)(orders.id, `%${orderId}%`) : void 0,
+        status ? (0, import_drizzle_orm10.eq)(orders.status, status) : void 0,
+        customerName ? (0, import_drizzle_orm10.ilike)(users.name, `%${customerName}%`) : void 0
       )
     );
-    const [ordersCount] = await db.select({ count: (0, import_drizzle_orm9.count)() }).from(baseQuery.as("baseQuery"));
+    const [ordersCount] = await db.select({ count: (0, import_drizzle_orm10.count)() }).from(baseQuery.as("baseQuery"));
     const allOrders = await baseQuery.offset(pageIndex * 10).limit(10).orderBy((fields) => {
       return [
-        import_drizzle_orm9.sql`CASE ${fields.status} 
+        import_drizzle_orm10.sql`CASE ${fields.status} 
             WHEN 'pending' THEN 1
             WHEN 'processing' THEN 2
             WHEN 'delivering' THEN 3
             WHEN 'delivered' THEN 4
             WHEN 'canceled' THEN 99
           END`,
-        (0, import_drizzle_orm9.desc)(fields.createdAt)
+        (0, import_drizzle_orm10.desc)(fields.createdAt)
       ];
     });
     const result = {
@@ -736,9 +736,16 @@ var getOrders = new import_elysia8.default().use(authentication).get(
   {
     query: import_elysia8.t.Object({
       customerName: import_elysia8.t.Optional(import_elysia8.t.String()),
-      productName: import_elysia8.t.Optional(import_elysia8.t.String()),
       orderId: import_elysia8.t.Optional(import_elysia8.t.String()),
-      status: import_elysia8.t.Optional((0, import_drizzle_typebox.createSelectSchema)(orders).properties.status),
+      status: import_elysia8.t.Optional(
+        import_elysia8.t.Union([
+          import_elysia8.t.Literal("pending"),
+          import_elysia8.t.Literal("canceled"),
+          import_elysia8.t.Literal("processing"),
+          import_elysia8.t.Literal("delivering"),
+          import_elysia8.t.Literal("delivered")
+        ])
+      ),
       pageIndex: import_elysia8.t.Numeric({ minimum: 0 })
     })
   }
@@ -748,7 +755,6 @@ var getOrders = new import_elysia8.default().use(authentication).get(
 var import_elysia9 = __toESM(require("elysia"), 1);
 var createEvaluation = new import_elysia9.default().use(authentication).post(
   "/evaluations",
-  // @ts-ignore
   async ({ body, getCurrentUser, set }) => {
     const { sub: userId } = await getCurrentUser();
     const { restaurantId, rate, comment } = body;
@@ -800,7 +806,7 @@ var getEvaluations = new import_elysia10.default().use(authentication).get(
 
 // src/http/routes/update-menu.ts
 var import_elysia11 = __toESM(require("elysia"), 1);
-var import_drizzle_orm10 = require("drizzle-orm");
+var import_drizzle_orm11 = require("drizzle-orm");
 var productSchema = import_elysia11.t.Object({
   id: import_elysia11.t.Optional(import_elysia11.t.String()),
   name: import_elysia11.t.String(),
@@ -810,17 +816,17 @@ var productSchema = import_elysia11.t.Object({
 var updateMenu = new import_elysia11.default().use(authentication).put(
   "/menu",
   // @ts-ignore
-  async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, set, body }) => {
+    const restaurantId = await getManagedRestaurantId2();
     const {
       // @ts-ignore
       products: { deletedProductIds, newOrUpdatedProducts }
     } = body;
     if (deletedProductIds.length > 0) {
       await db.delete(products).where(
-        (0, import_drizzle_orm10.and)(
-          (0, import_drizzle_orm10.inArray)(products.id, deletedProductIds),
-          (0, import_drizzle_orm10.eq)(products.restaurantId, restaurantId)
+        (0, import_drizzle_orm11.and)(
+          (0, import_drizzle_orm11.inArray)(products.id, deletedProductIds),
+          (0, import_drizzle_orm11.eq)(products.restaurantId, restaurantId)
         )
       );
     }
@@ -837,9 +843,9 @@ var updateMenu = new import_elysia11.default().use(authentication).put(
             description: product.description,
             priceInCents: product.price * 100
           }).where(
-            (0, import_drizzle_orm10.and)(
-              (0, import_drizzle_orm10.eq)(products.id, product.id),
-              (0, import_drizzle_orm10.eq)(products.restaurantId, restaurantId)
+            (0, import_drizzle_orm11.and)(
+              (0, import_drizzle_orm11.eq)(products.id, product.id),
+              (0, import_drizzle_orm11.eq)(products.restaurantId, restaurantId)
             )
           );
         })
@@ -876,17 +882,17 @@ var updateMenu = new import_elysia11.default().use(authentication).put(
 
 // src/http/routes/update-profile.ts
 var import_elysia12 = __toESM(require("elysia"), 1);
-var import_drizzle_orm11 = require("drizzle-orm");
+var import_drizzle_orm12 = require("drizzle-orm");
 var updateProfile = new import_elysia12.default().use(authentication).put(
   "/profile",
   // @ts-ignore
-  async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, set, body }) => {
+    const restaurantId = await getManagedRestaurantId2();
     const { name, description } = body;
     await db.update(restaurants).set({
       name,
       description
-    }).where((0, import_drizzle_orm11.eq)(restaurants.id, restaurantId));
+    }).where((0, import_drizzle_orm12.eq)(restaurants.id, restaurantId));
     set.status = 204;
   },
   {
@@ -902,8 +908,8 @@ var import_elysia13 = __toESM(require("elysia"), 1);
 var getProfile = new import_elysia13.default().use(authentication).get("/me", async ({ getCurrentUser }) => {
   const { sub: userId } = await getCurrentUser();
   const user = await db.query.users.findFirst({
-    where(fields, { eq: eq16 }) {
-      return eq16(fields.id, userId);
+    where(fields, { eq: eq18 }) {
+      return eq18(fields.id, userId);
     }
   });
   if (!user) {
@@ -915,14 +921,14 @@ var getProfile = new import_elysia13.default().use(authentication).get("/me", as
 // src/http/routes/authenticate-from-link.ts
 var import_elysia14 = __toESM(require("elysia"), 1);
 var import_dayjs = __toESM(require("dayjs"), 1);
-var import_drizzle_orm12 = require("drizzle-orm");
+var import_drizzle_orm13 = require("drizzle-orm");
 var authenticateFromLink = new import_elysia14.default().use(authentication).get(
   "/auth-links/authenticate",
   async ({ signUser, query, set }) => {
     const { code, redirect } = query;
     const authLinkFromCode = await db.query.authLinks.findFirst({
-      where(fields, { eq: eq16 }) {
-        return eq16(fields.code, code);
+      where(fields, { eq: eq18 }) {
+        return eq18(fields.code, code);
       }
     });
     if (!authLinkFromCode) {
@@ -932,15 +938,15 @@ var authenticateFromLink = new import_elysia14.default().use(authentication).get
       throw new UnauthorizedError();
     }
     const managedRestaurant = await db.query.restaurants.findFirst({
-      where(fields, { eq: eq16 }) {
-        return eq16(fields.managerId, authLinkFromCode.userId);
+      where(fields, { eq: eq18 }) {
+        return eq18(fields.managerId, authLinkFromCode.userId);
       }
     });
     await signUser({
       sub: authLinkFromCode.userId,
       restaurantId: managedRestaurant?.id
     });
-    await db.delete(authLinks).where((0, import_drizzle_orm12.eq)(authLinks.code, code));
+    await db.delete(authLinks).where((0, import_drizzle_orm13.eq)(authLinks.code, code));
     set.redirect = redirect;
   },
   {
@@ -953,11 +959,11 @@ var authenticateFromLink = new import_elysia14.default().use(authentication).get
 
 // src/http/routes/get-managed-restaurant.ts
 var import_elysia15 = __toESM(require("elysia"), 1);
-var getManagedRestaurant = new import_elysia15.default().use(authentication).get("/managed-restaurant", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var getManagedRestaurant = new import_elysia15.default().use(authentication).get("/managed-restaurant", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   const restaurant = await db.query.restaurants.findFirst({
-    where(fields, { eq: eq16 }) {
-      return eq16(fields.id, restaurantId);
+    where(fields, { eq: eq18 }) {
+      return eq18(fields.id, restaurantId);
     }
   });
   if (!restaurant) {
@@ -979,7 +985,7 @@ var getOrderDetails = new import_elysia17.default().use(authentication).get(
   // @ts-ignore
   async ({ getCurrentUser, params }) => {
     const { id: orderId } = params;
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = await getManagedRestaurantId();
     if (!restaurantId) {
       throw new NotAManagerError();
     }
@@ -1013,10 +1019,10 @@ var getOrderDetails = new import_elysia17.default().use(authentication).get(
           }
         }
       },
-      where(fields, { eq: eq16, and: and10 }) {
+      where(fields, { eq: eq18, and: and10 }) {
         return and10(
-          eq16(fields.id, orderId),
-          eq16(fields.restaurantId, restaurantId)
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
         );
       }
     });
@@ -1034,24 +1040,24 @@ var getOrderDetails = new import_elysia17.default().use(authentication).get(
 
 // src/http/routes/get-month-receipt.ts
 var import_elysia18 = __toESM(require("elysia"), 1);
-var import_drizzle_orm13 = require("drizzle-orm");
+var import_drizzle_orm14 = require("drizzle-orm");
 var import_dayjs2 = __toESM(require("dayjs"), 1);
-var getMonthReceipt = new import_elysia18.default().use(authentication).get("/metrics/month-receipt", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var getMonthReceipt = new import_elysia18.default().use(authentication).get("/metrics/month-receipt", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   const today = (0, import_dayjs2.default)();
   const lastMonth = today.subtract(1, "month");
   const startOfLastMonth = lastMonth.startOf("month");
   const lastMonthWithYear = lastMonth.format("YYYY-MM");
   const currentMonthWithYear = today.format("YYYY-MM");
   const monthsReceipts = await db.select({
-    monthWithYear: import_drizzle_orm13.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
-    receipt: (0, import_drizzle_orm13.sum)(orders.totalInCents).mapWith(Number)
+    monthWithYear: import_drizzle_orm14.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
+    receipt: (0, import_drizzle_orm14.sum)(orders.totalInCents).mapWith(Number)
   }).from(orders).where(
-    (0, import_drizzle_orm13.and)(
-      (0, import_drizzle_orm13.eq)(orders.restaurantId, restaurantId),
-      (0, import_drizzle_orm13.gte)(orders.createdAt, startOfLastMonth.toDate())
+    (0, import_drizzle_orm14.and)(
+      (0, import_drizzle_orm14.eq)(orders.restaurantId, restaurantId),
+      (0, import_drizzle_orm14.gte)(orders.createdAt, startOfLastMonth.toDate())
     )
-  ).groupBy(import_drizzle_orm13.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ receipt }) => (0, import_drizzle_orm13.gte)(receipt, 1));
+  ).groupBy(import_drizzle_orm14.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ receipt }) => (0, import_drizzle_orm14.gte)(receipt, 1));
   const currentMonthReceipt = monthsReceipts.find((monthReceipt) => {
     return monthReceipt.monthWithYear === currentMonthWithYear;
   });
@@ -1067,24 +1073,24 @@ var getMonthReceipt = new import_elysia18.default().use(authentication).get("/me
 
 // src/http/routes/get-month-orders-amount.ts
 var import_elysia19 = __toESM(require("elysia"), 1);
-var import_drizzle_orm14 = require("drizzle-orm");
+var import_drizzle_orm15 = require("drizzle-orm");
 var import_dayjs3 = __toESM(require("dayjs"), 1);
-var getMonthOrdersAmount = new import_elysia19.default().use(authentication).get("/metrics/month-orders-amount", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var getMonthOrdersAmount = new import_elysia19.default().use(authentication).get("/metrics/month-orders-amount", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   const today = (0, import_dayjs3.default)();
   const lastMonth = today.subtract(1, "month");
   const startOfLastMonth = lastMonth.startOf("month");
   const lastMonthWithYear = lastMonth.format("YYYY-MM");
   const currentMonthWithYear = today.format("YYYY-MM");
   const ordersPerMonth = await db.select({
-    monthWithYear: import_drizzle_orm14.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
-    amount: (0, import_drizzle_orm14.count)(orders.id)
+    monthWithYear: import_drizzle_orm15.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
+    amount: (0, import_drizzle_orm15.count)(orders.id)
   }).from(orders).where(
-    (0, import_drizzle_orm14.and)(
-      (0, import_drizzle_orm14.eq)(orders.restaurantId, restaurantId),
-      (0, import_drizzle_orm14.gte)(orders.createdAt, startOfLastMonth.toDate())
+    (0, import_drizzle_orm15.and)(
+      (0, import_drizzle_orm15.eq)(orders.restaurantId, restaurantId),
+      (0, import_drizzle_orm15.gte)(orders.createdAt, startOfLastMonth.toDate())
     )
-  ).groupBy(import_drizzle_orm14.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ amount }) => (0, import_drizzle_orm14.gte)(amount, 1));
+  ).groupBy(import_drizzle_orm15.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ amount }) => (0, import_drizzle_orm15.gte)(amount, 1));
   const currentMonthOrdersAmount = ordersPerMonth.find((ordersInMonth) => {
     return ordersInMonth.monthWithYear === currentMonthWithYear;
   });
@@ -1100,24 +1106,24 @@ var getMonthOrdersAmount = new import_elysia19.default().use(authentication).get
 
 // src/http/routes/get-day-orders-amount.ts
 var import_elysia20 = __toESM(require("elysia"), 1);
-var import_drizzle_orm15 = require("drizzle-orm");
+var import_drizzle_orm16 = require("drizzle-orm");
 var import_dayjs4 = __toESM(require("dayjs"), 1);
-var getDayOrdersAmount = new import_elysia20.default().use(authentication).get("/metrics/day-orders-amount", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var getDayOrdersAmount = new import_elysia20.default().use(authentication).get("/metrics/day-orders-amount", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   const today = (0, import_dayjs4.default)();
   const yesterday = today.subtract(1, "day");
   const startOfYesterday = yesterday.startOf("day");
   const yesterdayWithMonthAndYear = yesterday.format("YYYY-MM-DD");
   const todayWithMonthAndYear = today.format("YYYY-MM-DD");
   const ordersPerDay = await db.select({
-    dayWithMonthAndYear: import_drizzle_orm15.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`,
-    amount: (0, import_drizzle_orm15.count)(orders.id)
+    dayWithMonthAndYear: import_drizzle_orm16.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`,
+    amount: (0, import_drizzle_orm16.count)(orders.id)
   }).from(orders).where(
-    (0, import_drizzle_orm15.and)(
-      (0, import_drizzle_orm15.eq)(orders.restaurantId, restaurantId),
-      (0, import_drizzle_orm15.gte)(orders.createdAt, startOfYesterday.toDate())
+    (0, import_drizzle_orm16.and)(
+      (0, import_drizzle_orm16.eq)(orders.restaurantId, restaurantId),
+      (0, import_drizzle_orm16.gte)(orders.createdAt, startOfYesterday.toDate())
     )
-  ).groupBy(import_drizzle_orm15.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`).having(({ amount }) => (0, import_drizzle_orm15.gte)(amount, 1));
+  ).groupBy(import_drizzle_orm16.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM-DD')`).having(({ amount }) => (0, import_drizzle_orm16.gte)(amount, 1));
   const todayOrdersAmount = ordersPerDay.find((orderInDay) => {
     return orderInDay.dayWithMonthAndYear === todayWithMonthAndYear;
   });
@@ -1133,28 +1139,28 @@ var getDayOrdersAmount = new import_elysia20.default().use(authentication).get("
 
 // src/http/routes/get-month-canceled-orders-amount.ts
 var import_elysia21 = __toESM(require("elysia"), 1);
-var import_drizzle_orm16 = require("drizzle-orm");
+var import_drizzle_orm17 = require("drizzle-orm");
 var import_dayjs5 = __toESM(require("dayjs"), 1);
 var getMonthCanceledOrdersAmount = new import_elysia21.default().use(authentication).get(
   "/metrics/month-canceled-orders-amount",
   // @ts-ignore
-  async ({ getManagedRestaurantId }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+  async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+    const restaurantId = await getManagedRestaurantId2();
     const today = (0, import_dayjs5.default)();
     const lastMonth = today.subtract(1, "month");
     const startOfLastMonth = lastMonth.startOf("month");
     const lastMonthWithYear = lastMonth.format("YYYY-MM");
     const currentMonthWithYear = today.format("YYYY-MM");
     const ordersPerMonth = await db.select({
-      monthWithYear: import_drizzle_orm16.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
-      amount: (0, import_drizzle_orm16.count)(orders.id)
+      monthWithYear: import_drizzle_orm17.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`,
+      amount: (0, import_drizzle_orm17.count)(orders.id)
     }).from(orders).where(
-      (0, import_drizzle_orm16.and)(
-        (0, import_drizzle_orm16.eq)(orders.restaurantId, restaurantId),
-        (0, import_drizzle_orm16.eq)(orders.status, "canceled"),
-        (0, import_drizzle_orm16.gte)(orders.createdAt, startOfLastMonth.toDate())
+      (0, import_drizzle_orm17.and)(
+        (0, import_drizzle_orm17.eq)(orders.restaurantId, restaurantId),
+        (0, import_drizzle_orm17.eq)(orders.status, "canceled"),
+        (0, import_drizzle_orm17.gte)(orders.createdAt, startOfLastMonth.toDate())
       )
-    ).groupBy(import_drizzle_orm16.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ amount }) => (0, import_drizzle_orm16.gte)(amount, 1));
+    ).groupBy(import_drizzle_orm17.sql`TO_CHAR(${orders.createdAt}, 'YYYY-MM')`).having(({ amount }) => (0, import_drizzle_orm17.gte)(amount, 1));
     const currentMonthOrdersAmount = ordersPerMonth.find((ordersInMonth) => {
       return ordersInMonth.monthWithYear === currentMonthWithYear;
     });
@@ -1171,13 +1177,13 @@ var getMonthCanceledOrdersAmount = new import_elysia21.default().use(authenticat
 
 // src/http/routes/get-daily-receipt-in-period.ts
 var import_elysia22 = __toESM(require("elysia"), 1);
-var import_drizzle_orm17 = require("drizzle-orm");
+var import_drizzle_orm18 = require("drizzle-orm");
 var import_dayjs6 = __toESM(require("dayjs"), 1);
 var getDailyReceiptInPeriod = new import_elysia22.default().use(authentication).get(
   "/metrics/daily-receipt-in-period",
   // @ts-ignore
-  async ({ getManagedRestaurantId, query, set }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, query, set }) => {
+    const restaurantId = await getManagedRestaurantId2();
     const { from, to } = query;
     const startDate = from ? (0, import_dayjs6.default)(from) : (0, import_dayjs6.default)().subtract(7, "d");
     const endDate = to ? (0, import_dayjs6.default)(to) : from ? startDate.add(7, "days") : (0, import_dayjs6.default)();
@@ -1189,21 +1195,21 @@ var getDailyReceiptInPeriod = new import_elysia22.default().use(authentication).
       };
     }
     const receiptPerDay = await db.select({
-      date: import_drizzle_orm17.sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`,
-      receipt: (0, import_drizzle_orm17.sum)(orders.totalInCents).mapWith(Number)
+      date: import_drizzle_orm18.sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`,
+      receipt: (0, import_drizzle_orm18.sum)(orders.totalInCents).mapWith(Number)
     }).from(orders).where(
-      (0, import_drizzle_orm17.and)(
-        (0, import_drizzle_orm17.eq)(orders.restaurantId, restaurantId),
-        (0, import_drizzle_orm17.gte)(
+      (0, import_drizzle_orm18.and)(
+        (0, import_drizzle_orm18.eq)(orders.restaurantId, restaurantId),
+        (0, import_drizzle_orm18.gte)(
           orders.createdAt,
           startDate.startOf("day").add(startDate.utcOffset(), "minutes").toDate()
         ),
-        (0, import_drizzle_orm17.lte)(
+        (0, import_drizzle_orm18.lte)(
           orders.createdAt,
           endDate.endOf("day").add(endDate.utcOffset(), "minutes").toDate()
         )
       )
-    ).groupBy(import_drizzle_orm17.sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`).having(({ receipt }) => (0, import_drizzle_orm17.gte)(receipt, 1));
+    ).groupBy(import_drizzle_orm18.sql`TO_CHAR(${orders.createdAt}, 'DD/MM')`).having(({ receipt }) => (0, import_drizzle_orm18.gte)(receipt, 1));
     const orderedReceiptPerDay = receiptPerDay.sort((a, b) => {
       const [dayA, monthA] = a.date.split("/").map(Number);
       const [dayB, monthB] = b.date.split("/").map(Number);
@@ -1227,14 +1233,14 @@ var getDailyReceiptInPeriod = new import_elysia22.default().use(authentication).
 
 // src/http/routes/get-popular-products.ts
 var import_elysia23 = __toESM(require("elysia"), 1);
-var import_drizzle_orm18 = require("drizzle-orm");
-var getPopularProducts = new import_elysia23.default().use(authentication).get("/metrics/popular-products", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var import_drizzle_orm19 = require("drizzle-orm");
+var getPopularProducts = new import_elysia23.default().use(authentication).get("/metrics/popular-products", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   try {
     const popularProducts = await db.select({
       product: products.name,
-      amount: (0, import_drizzle_orm18.count)(orderItems.id)
-    }).from(orderItems).leftJoin(orders, (0, import_drizzle_orm18.eq)(orders.id, orderItems.orderId)).leftJoin(products, (0, import_drizzle_orm18.eq)(products.id, orderItems.productId)).where((0, import_drizzle_orm18.and)((0, import_drizzle_orm18.eq)(orders.restaurantId, restaurantId))).groupBy(products.name).limit(5);
+      amount: (0, import_drizzle_orm19.count)(orderItems.id)
+    }).from(orderItems).leftJoin(orders, (0, import_drizzle_orm19.eq)(orders.id, orderItems.orderId)).leftJoin(products, (0, import_drizzle_orm19.eq)(products.id, orderItems.productId)).where((0, import_drizzle_orm19.and)((0, import_drizzle_orm19.eq)(orders.restaurantId, restaurantId))).groupBy(products.name).limit(5);
     return popularProducts;
   } catch (err) {
     console.log(err);
@@ -1243,18 +1249,18 @@ var getPopularProducts = new import_elysia23.default().use(authentication).get("
 
 // src/http/routes/dispatch-order.ts
 var import_elysia24 = __toESM(require("elysia"), 1);
-var import_drizzle_orm19 = require("drizzle-orm");
+var import_drizzle_orm20 = require("drizzle-orm");
 var dispatchOrder = new import_elysia24.default().use(authentication).patch(
   "/orders/:id/dispatch",
   // @ts-ignore
-  async ({ getManagedRestaurantId, set, params }) => {
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, set, params }) => {
     const { id: orderId } = params;
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = await getManagedRestaurantId2();
     const order = await db.query.orders.findFirst({
-      where(fields, { eq: eq16, and: and10 }) {
+      where(fields, { eq: eq18, and: and10 }) {
         return and10(
-          eq16(fields.id, orderId),
-          eq16(fields.restaurantId, restaurantId)
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
         );
       }
     });
@@ -1267,7 +1273,7 @@ var dispatchOrder = new import_elysia24.default().use(authentication).patch(
     }
     await db.update(orders).set({
       status: "delivering"
-    }).where((0, import_drizzle_orm19.eq)(orders.id, orderId));
+    }).where((0, import_drizzle_orm20.eq)(orders.id, orderId));
     set.status = 204;
   },
   {
@@ -1279,18 +1285,18 @@ var dispatchOrder = new import_elysia24.default().use(authentication).patch(
 
 // src/http/routes/deliver-order.ts
 var import_elysia25 = __toESM(require("elysia"), 1);
-var import_drizzle_orm20 = require("drizzle-orm");
+var import_drizzle_orm21 = require("drizzle-orm");
 var deliverOrder = new import_elysia25.default().use(authentication).patch(
   "/orders/:id/deliver",
   // @ts-ignore
-  async ({ getManagedRestaurantId, set, params }) => {
+  async ({ getManagedRestaurantId: getManagedRestaurantId2, set, params }) => {
     const { id: orderId } = params;
-    const restaurantId = env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = await getManagedRestaurantId2();
     const order = await db.query.orders.findFirst({
-      where(fields, { eq: eq16, and: and10 }) {
+      where(fields, { eq: eq18, and: and10 }) {
         return and10(
-          eq16(fields.id, orderId),
-          eq16(fields.restaurantId, restaurantId)
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
         );
       }
     });
@@ -1303,7 +1309,7 @@ var deliverOrder = new import_elysia25.default().use(authentication).patch(
     }
     await db.update(orders).set({
       status: "delivered"
-    }).where((0, import_drizzle_orm20.eq)(orders.id, orderId));
+    }).where((0, import_drizzle_orm21.eq)(orders.id, orderId));
     set.status = 204;
   },
   {
@@ -1315,14 +1321,16 @@ var deliverOrder = new import_elysia25.default().use(authentication).patch(
 
 // src/http/routes/get-products.ts
 var import_elysia26 = __toESM(require("elysia"), 1);
-var getProducts = new import_elysia26.default().use(authentication).get("/get-products", async ({ getManagedRestaurantId }) => {
+var import_drizzle_orm22 = require("drizzle-orm");
+var getProducts = new import_elysia26.default().use(authentication).get("/get-products", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   try {
     const product = await db.select({
       id: products.id,
       name: products.name,
       category: products.category,
       price: products.priceInCents
-    }).from(products).groupBy(products.name, products.id);
+    }).from(products).where((0, import_drizzle_orm22.eq)(products.restaurantId, restaurantId)).groupBy(products.name, products.id);
     return product;
   } catch (err) {
     console.log(err);
@@ -1331,9 +1339,9 @@ var getProducts = new import_elysia26.default().use(authentication).get("/get-pr
 
 // src/http/routes/get-customers.ts
 var import_elysia27 = __toESM(require("elysia"), 1);
-var import_drizzle_orm21 = require("drizzle-orm");
-var getCustomers = new import_elysia27.default().use(authentication).get("/get-customers", async ({ getManagedRestaurantId }) => {
-  const restaurantId = env.DEFAULT_RESTAURANT_ID;
+var import_drizzle_orm23 = require("drizzle-orm");
+var getCustomers = new import_elysia27.default().use(authentication).get("/get-customers", async ({ getManagedRestaurantId: getManagedRestaurantId2 }) => {
+  const restaurantId = await getManagedRestaurantId2();
   const role = "customer";
   try {
     const customer = await db.select({
@@ -1341,7 +1349,7 @@ var getCustomers = new import_elysia27.default().use(authentication).get("/get-c
       name: users.name,
       phone: users.phone,
       email: users.email
-    }).from(users).where((0, import_drizzle_orm21.and)((0, import_drizzle_orm21.eq)(users.role, role)));
+    }).from(users).where((0, import_drizzle_orm23.and)((0, import_drizzle_orm23.eq)(users.role, role)));
     return customer;
   } catch (err) {
     console.log(err);
@@ -1350,11 +1358,60 @@ var getCustomers = new import_elysia27.default().use(authentication).get("/get-c
 
 // src/http/server.ts
 var import_pino = __toESM(require("pino"), 1);
+
+// src/http/routes/get-order-quantity.ts
+var import_elysia28 = __toESM(require("elysia"), 1);
+var getOrderQuantity = new import_elysia28.default().use(authentication).get(
+  "/orders/quantity/:id",
+  async ({ getCurrentUser, params }) => {
+    const { id: orderId } = params;
+    const { restaurantId } = await getCurrentUser();
+    if (!restaurantId) {
+      throw new NotAManagerError();
+    }
+    const order = await db.query.orders.findFirst({
+      columns: {
+        id: true
+      },
+      with: {
+        orderItems: {
+          columns: {
+            quantity: true
+          },
+          with: {
+            product: {
+              columns: {
+                name: true
+              }
+            }
+          }
+        }
+      },
+      where(fields, { eq: eq18, and: and10 }) {
+        return and10(
+          eq18(fields.id, orderId),
+          eq18(fields.restaurantId, restaurantId)
+        );
+      }
+    });
+    if (!order) {
+      throw new UnauthorizedError();
+    }
+    return order;
+  },
+  {
+    params: import_elysia28.t.Object({
+      id: import_elysia28.t.String()
+    })
+  }
+);
+
+// src/http/server.ts
 var logger = (0, import_pino.default)();
-var app = new import_elysia28.Elysia().use(
+var app = new import_elysia29.Elysia().use(
   (0, import_cors.cors)({
     credentials: true,
-    allowedHeaders: ["content-type", "authorization"],
+    allowedHeaders: ["content-type"],
     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "HEAD", "OPTIONS"],
     origin: (request) => {
       const origin = request.headers.get("origin");
@@ -1364,38 +1421,18 @@ var app = new import_elysia28.Elysia().use(
       return true;
     }
   })
-).use(authentication).use(signOut).use(getProfile).use(getManagedRestaurant).use(registerRestaurant).use(registerCustomer).use(sendAuthenticationLink).use(authenticateFromLink).use(createOrder).use(approveOrder).use(cancelOrder).use(dispatchOrder).use(deliverOrder).use(getOrders).use(getOrderDetails).use(createEvaluation).use(getEvaluations).use(updateMenu).use(updateProfile).use(getMonthReceipt).use(getMonthOrdersAmount).use(getDayOrdersAmount).use(getMonthCanceledOrdersAmount).use(getDailyReceiptInPeriod).use(getPopularProducts).use(getProducts).use(getCustomers).onError(({ code, error, set }) => {
-  set.headers["Content-Type"] = "application/json";
+).use(authentication).use(signOut).use(getProfile).use(getManagedRestaurant).use(registerRestaurant).use(registerCustomer).use(getOrderQuantity).use(sendAuthenticationLink).use(authenticateFromLink).use(createOrder).use(approveOrder).use(cancelOrder).use(dispatchOrder).use(deliverOrder).use(getOrders).use(getOrderDetails).use(createEvaluation).use(getEvaluations).use(updateMenu).use(updateProfile).use(getMonthReceipt).use(getMonthOrdersAmount).use(getDayOrdersAmount).use(getMonthCanceledOrdersAmount).use(getDailyReceiptInPeriod).use(getPopularProducts).use(getProducts).use(getCustomers).onError(({ code, error, set }) => {
   switch (code) {
     case "VALIDATION": {
-      set.status = 422;
-      return {
-        error: "Validation Error",
-        message: error.message,
-        property: error.property,
-        summary: error.summary,
-        // Opcional: envie apenas o necessário
-        path: error.property,
-        details: error.errors?.map((e) => ({
-          path: e.path,
-          message: e.message,
-          expected: e.schema?.type,
-          received: e.value
-        })) || []
-      };
+      set.status = error.status;
+      return error.toResponse();
     }
     case "NOT_FOUND": {
-      set.status = 404;
-      return {
-        error: "Resource not found"
-      };
+      return new Response(null, { status: 404 });
     }
     default: {
       console.error(error);
-      set.status = 500;
-      return {
-        error: "Internal Server Error"
-      };
+      return new Response(null, { status: 500 });
     }
   }
 });

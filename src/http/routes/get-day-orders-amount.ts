@@ -8,7 +8,7 @@ import { env } from '@/env'
 export const getDayOrdersAmount = new Elysia()
   .use(authentication)
   .get('/metrics/day-orders-amount', async ({ getManagedRestaurantId }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     const today = dayjs()
     const yesterday = today.subtract(1, 'day')

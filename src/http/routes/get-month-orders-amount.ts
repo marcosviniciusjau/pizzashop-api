@@ -9,7 +9,7 @@ export const getMonthOrdersAmount = new Elysia()
   .use(authentication)
   // @ts-ignore
   .get('/metrics/month-orders-amount', async ({ getManagedRestaurantId }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     const today = dayjs()
     const lastMonth = today.subtract(1, 'month')

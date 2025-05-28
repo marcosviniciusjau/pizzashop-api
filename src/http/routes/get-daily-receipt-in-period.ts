@@ -9,7 +9,7 @@ export const getDailyReceiptInPeriod = new Elysia().use(authentication).get(
   '/metrics/daily-receipt-in-period',
   // @ts-ignore
   async ({ getManagedRestaurantId, query, set }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
 
     const { from, to } = query
 

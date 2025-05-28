@@ -32,10 +32,10 @@ import pino from 'pino'
 import { getOrderQuantity } from './routes/get-order-quantity'
 const logger = pino();
 const app = new Elysia()
-  .use(
+   .use(
     cors({
       credentials: true,
-      allowedHeaders: ['content-type', 'authorization'],
+      allowedHeaders: ['content-type'],
       methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'HEAD', 'OPTIONS'],
       origin: (request): boolean => {
         const origin = request.headers.get('origin')
@@ -76,47 +76,23 @@ const app = new Elysia()
   .use(getPopularProducts)
   .use(getProducts)
   .use(getCustomers)
-  .onError(({ code, error, set }) => {
-    set.headers['Content-Type'] = 'application/json';
-
+   .onError(({ code, error, set }) => {
     switch (code) {
       case 'VALIDATION': {
-        set.status = 422;
+        set.status = error.status
 
-        return {
-          error: 'Validation Error',
-          message: error.message,
-          property: error.property,
-          summary: error.summary,
-          // Opcional: envie apenas o necessário
-          path: error.property,
-          details: error.errors?.map(e => ({
-            path: e.path,
-            message: e.message,
-            expected: e.schema?.type,
-            received: e.value,
-          })) || []
-        };
+        return error.toResponse()
       }
-
       case 'NOT_FOUND': {
-        set.status = 404;
-        return {
-          error: 'Resource not found',
-        };
+        return new Response(null, { status: 404 })
       }
-
       default: {
-        console.error(error);
+        console.error(error)
 
-        set.status = 500;
-        return {
-          error: 'Internal Server Error'
-        };
+        return new Response(null, { status: 500 })
       }
     }
-  });
-
+  })
 
 app.listen(3333)
 

@@ -3,13 +3,11 @@ import { authentication } from '../authentication'
 import { db } from '@/db/connection'
 import { UnauthorizedError } from './errors/unauthorized-error'
 import { NotAManagerError } from './errors/not-a-manager-error'
-import { env } from '@/env'
 export const getOrderQuantity = new Elysia().use(authentication).get(
   '/orders/quantity/:id',
-  // @ts-ignore
   async ({ getCurrentUser, params }) => {
     const { id: orderId } = params
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const { restaurantId } = await getCurrentUser()
 
     if (!restaurantId) {
       throw new NotAManagerError()

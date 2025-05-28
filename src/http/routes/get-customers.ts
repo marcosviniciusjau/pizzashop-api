@@ -8,7 +8,7 @@ export const getCustomers = new Elysia()
   .use(authentication)
   // @ts-ignore
   .get('/get-customers', async ({ getManagedRestaurantId }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
     const role = 'customer'
 
     try {

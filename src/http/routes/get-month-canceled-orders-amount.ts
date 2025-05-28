@@ -11,7 +11,7 @@ export const getMonthCanceledOrdersAmount = new Elysia()
     '/metrics/month-canceled-orders-amount',
     // @ts-ignore
     async ({ getManagedRestaurantId }) => {
-      const restaurantId = env.DEFAULT_RESTAURANT_ID
+      const restaurantId = await getManagedRestaurantId()
 
       const today = dayjs()
       const lastMonth = today.subtract(1, 'month')

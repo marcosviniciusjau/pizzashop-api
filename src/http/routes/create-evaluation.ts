@@ -5,10 +5,8 @@ import { evaluations } from '@/db/schema'
 
 export const createEvaluation = new Elysia().use(authentication).post(
   '/evaluations',
-  // @ts-ignore
   async ({ body, getCurrentUser, set }) => {
     const { sub: userId } = await getCurrentUser()
-    // @ts-ignore
     const { restaurantId, rate, comment } = body
 
     await db.insert(evaluations).values({

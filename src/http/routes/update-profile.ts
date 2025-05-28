@@ -8,7 +8,7 @@ export const updateProfile = new Elysia().use(authentication).put(
   '/profile',
   // @ts-ignore
   async ({ getManagedRestaurantId, set, body }) => {
-    const restaurantId = env.DEFAULT_RESTAURANT_ID
+    const restaurantId = await getManagedRestaurantId()
     // @ts-ignore
     const { name, description } = body
 
